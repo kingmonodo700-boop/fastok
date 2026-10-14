@@ -1,0 +1,312 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #000;
+  color: #fff;
+  font-family: sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.fasotoc-app {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  height: 100vh;
+  background-color: #000;
+  overflow: hidden;
+}
+
+.top-nav {
+  position: absolute;
+  top: 20px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  z-index: 99;
+}
+
+.top-nav span {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 600;
+}
+
+.top-nav .active-tab {
+  color: #fff;
+  border-bottom: 2px solid #fff;
+  padding-bottom: 4px;
+}
+
+.country-flag {
+  position: absolute;
+  right: 20px;
+  font-size: 20px;
+}
+
+.video-feed {
+  width: 100%;
+  height: 100%;
+}
+
+.video-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: #111;
+}
+
+.video-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.video-sim-text {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 14px;
+}
+
+.interaction-sidebar {
+  position: absolute;
+  right: 12px;
+  bottom: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  z-index: 90;
+}
+
+.icon-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.icon-group span {
+  font-size: 12px;
+  color: #fff;
+  margin-top: 4px;
+  font-weight: bold;
+}
+
+.action-btn {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.4);
+  border: none;
+  font-size: 24px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.profile-group {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.circle-profile {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #333;
+  border: 2px solid #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 22px;
+}
+
+.plus-badge {
+  position: absolute;
+  bottom: -5px;
+  background-color: #fe2c55;
+  color: #fff;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.music-disc {
+  font-size: 28px;
+  animation: rotateCD 3s linear infinite;
+}
+
+@keyframes rotateCD {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.video-footer {
+  position: absolute;
+  left: 15px;
+  bottom: 80px;
+  width: 75%;
+  z-index: 90;
+}
+
+.video-footer h3 {
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+
+.video-footer p {
+  font-size: 13px;
+  color: #f1f1f1;
+}
+
+.bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 65px;
+  background-color: #000;
+  border-top: 1px solid #222;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 100;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #a1a1aa;
+  cursor: pointer;
+}
+
+.nav-item span { font-size: 20px; }
+.nav-item p { font-size: 10px; }
+.active-nav { color: #fff; }
+
+.plus-container {
+  position: relative;
+  width: 45px;
+  height: 30px;
+}
+
+.tiktok-plus-btn {
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+/* --- DESIGN DU STUDIO POP-UP --- */
+.modal {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.95);
+  z-index: 9999; /* Passe par-dessus absolument tout */
+  display: none; /* Masqué par défaut */
+  justify-content: center;
+  align-items: center;
+}
+
+/* S'active quand on ajoute la classe avec JavaScript */
+.modal.active {
+  display: flex !important;
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 420px;
+  height: 100%;
+  padding: 20px;
+  text-align: center;
+  position: relative;
+}
+
+.modal-content h2 {
+  margin-top: 40px;
+  font-size: 20px;
+  color: #fff;
+}
+
+/* Fenêtre de la caméra */
+.camera-box {
+  width: 100%;
+  height: 350px;
+  background-color: #111;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 20px 0;
+  border: 2px solid #222;
+}
+
+#webcam {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); /* Effet miroir naturel */
+}
+
+/* Boutons de Filtres */
+.options-container { margin: 15px 0; }
+.options-container p { font-size: 14px; margin-bottom: 8px; color: #a1a1aa; }
+.btn-row { display: flex; justify-content: center; gap: 10px; }
+
+.filter-btn {
+  background: #222;
+  border: none;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.filter-btn.active-filter { background: #fe2c55 !important; font-weight: bold; }
+
+/* Filtres caméra */
+.effet-sepia { filter: sepia(0.8) contrast(1.2) !important; }
+.effet-grayscale { filter: grayscale(1) contrast(1.1) !important; }
+
+/* Bouton Fermer Croix */
+.close-studio-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #fff;
+  font-size: 30px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* Bouton Enregistrement Rouge */
+.capture-container { margin-top: 15px; }
+.gros-bouton-rouge {
+  width: 70px; height: 70px; border-radius: 50%; border: 4px solid #fff;
+  display: flex; justify-content: center; align-items: center; margin: 0 auto 8px auto; cursor: pointer;
+}
+.centre-bouton { width: 52px; height: 52px; border-radius: 50%; background: #fe2c55; transition: all 0.3s; }
+.gros-bouton-rouge.enregistrement-actif .centre-bouton { border-radius: 8px; scale: 0.7; }
+#statut-enregistrement { font-size: 13px; color: #a1a1aa; }

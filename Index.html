@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FasoToc</title>
+  <link rel="stylesheet" href="Style.css">
+</head>
+<body>
+
+  <div class="fasotoc-app">
+    
+    <!-- BARRE DU HAUT -->
+    <div class="top-nav">
+      <span>Abonnements</span>
+      <span class="active-tab">Pour toi</span>
+      <span class="country-flag">🇧🇫</span>
+    </div>
+
+    <!-- ZONE DES VIDÉOS -->
+    <div class="video-feed">
+      <section class="video-card">
+        <div class="video-placeholder" style="background: linear-gradient(to bottom, #111, #222);">
+          <div class="video-sim-text">Vidéo de @Burkina_Concept ✨</div>
+        </div>
+        
+        <!-- BARRE LATÉRALE DROITE -->
+        <div class="interaction-sidebar">
+          <div class="icon-group profile-group">
+            <div class="circle-profile">🇧🇫</div>
+            <div class="plus-badge">+</div>
+          </div>
+          <div class="icon-group" onclick="toggleLike(this)">
+            <button class="action-btn heart-btn">❤️</button>
+            <span>12.5k</span>
+          </div>
+          <div class="icon-group">
+            <button class="action-btn">💬</button>
+            <span>452</span>
+          </div>
+          <div class="icon-group" onclick="toggleBookmark(this)">
+            <button class="action-btn bookmark-btn">💛</button>
+            <span>89</span>
+          </div>
+          <div class="icon-group">
+            <div class="music-disc">💿</div>
+          </div>
+        </div>
+
+        <!-- DESCRIPTIONS EN BAS -->
+        <div class="video-footer">
+          <h3>@Burkina_Concept</h3>
+          <p>Nouveau challenge de danse à Ouagadougou ! 🇧🇫 #FasoToc #Burkina</p>
+          <div class="music-ticker">
+            <span>🎵 Floby - Baba</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 🥷 FENÊTRE POP-UP DU STUDIO (MASQUÉE PAR DÉFAUT) -->
+    <div id="upload-modal" class="modal">
+      <div class="modal-content">
+        <button class="close-studio-btn" onclick="fermerStudio()">&times;</button>
+        <h2>Studio de Création 🇧🇫</h2>
+        
+        <div class="camera-box">
+          <video id="webcam" autoplay playsinline muted></video>
+        </div>
+
+        <div class="options-container">
+          <p>Filtres :</p>
+          <div class="btn-row">
+            <button class="filter-btn active-filter" data-filter="none">Normal</button>
+            <button class="filter-btn" data-filter="sepia">Vintage</button>
+            <button class="filter-btn" data-filter="grayscale">N&B</button>
+          </div>
+        </div>
+
+        <div class="capture-container">
+          <div class="gros-bouton-rouge" id="bouton-capture" onclick="gererEnregistrement()">
+            <div class="centre-bouton"></div>
+          </div>
+          <p id="statut-enregistrement">Prêt à enregistrer</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MENU DU BAS FIXE -->
+    <div class="bottom-nav">
+      <div class="nav-item active-nav">
+        <span>🏠</span>
+        <p>Accueil</p>
+      </div>
+      <div class="nav-item">
+        <span>🔍</span>
+        <p>Découvrir</p>
+      </div>
+      <!-- LE BOUTON CENTRAL + CONFIGURÉ -->
+      <div class="nav-item plus-container" onclick="ouvrirStudio()">
+        <div class="tiktok-plus-btn">
+          <span class="plus-icon">+</span>
+        </div>
+      </div>
+      <div class="nav-item">
+        <span>⚡</span>
+        <p>Boîte</p>
+      </div>
+      <div class="nav-item">
+        <span>👤</span>
+        <p>Profil</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CONNEXION AVEC TON JAVASCRIPT scripts.js -->
+  <script src="scripts.js"></script>
+</body>
+</html>

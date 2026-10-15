@@ -1,111 +1,68 @@
-function toggleLike(element) {
-  // On cherche le bouton cœur à l'intérieur du groupe cliqué
-  const boutonCoeur = element.querySelector('.heart-btn');
-  const compteurText = element.querySelector('span');
-  
-  // On transforme le texte du compteur (ex: "12.5k") en nombre
-  let clics = parseFloat(compteurText.innerText);
-  
-  // Si le cœur est rouge, on le remet normal
-  if (boutonCoeur.style.color === "rgb(254, 44, 85)" || boutonCoeur.style.color === "#fe2c55") {
-    boutonCoeur.style.color = "#ffffff"; // Blanc
-    compteurText.innerText = (clics - 0.1).toFixed(1) + "k";
-  } else {
-    // Sinon, on le colore en rouge TikTok/FasoToc
-    boutonCoeur.style.color = "#fe2c55"; // Rouge vif
-    compteurText.innerText = (clics + 0.1).toFixed(1) + "k";
-  }
-}
 
-function toggleBookmark(element) {
-  const boutonFavoris = element.querySelector('.bookmark-btn');
-  const compteurText = element.querySelector('span');
-  let favorisCount = parseInt(compteurText.innerText);
-  
-  if (boutonFavoris.style.color === "rgb(250, 205, 59)" || boutonFavoris.style.color === "#facd3b") {
-    boutonFavoris.style.color = "#ffffff"; // Blanc
-    compteurText.innerText = favorisCount - 1;
-  } else {
-    boutonFavoris.style.color = "#facd3b"; // Jaune d'or
-    compteurText.innerText = favorisCount + 1;
-  }
-}
+document.addEventListener("DOMContentLoaded", function () {
+  const feed = document.getElementById("video-feed");
+  if (!feed) return;
 
-console.log("Système d'interactions activé avec succès sur FasoToc ! 🇧🇫");
-// --- LOGIQUE DU STUDIO DE CRÉATION ---
+  let dernierTap = 0;
+  let derniereCarte = null;
+  let dernierePosition = null;
 
-// 1. Ouvrir le studio et démarrer la caméra du smartphone
-function ouvrirStudio() {
-  const studioModal = document.getElementById('upload-modal');
-  const baliseVideo = document.getElementById('webcam');
-  
-  if (studioModal) {
-    studioModal.classList.add('active'); // Affiche la fenêtre
-    
-    // Demande l'accès à l'appareil photo du téléphone
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false })
-      .then((fluxCamera) => {
-        baliseVideo.srcObject = fluxCamera;
-      })
-      .catch((erreur) => {
-        console.error("Accès caméra refusé : ", erreur);
-        alert("Activez la caméra dans les autorisations de votre téléphone pour tester le studio.");
-      });
-  }
-}
+  feed.addEventListener("pointerup", function (event) {
+    if (event.target.closest("button, a, input, textarea, select")) {
+      return;
+    }
 
-// 2. Fermer le studio et ÉTEINDRE proprement la caméra (économie de batterie)
-function fermerStudio() {
-  const studioModal = document.getElementById('upload-modal');
-  const baliseVideo = document.getElementById('webcam');
-  
-  if (studioModal) {
-    studioModal.classList.remove('active'); // Masque la fenêtre
-  }
+    const carte = event.target.closest(".video-slide");
+    if (!carte) return;
 
-  if (baliseVideo && baliseVideo.srcObject) {
-    const fluxCourant = baliseVideo.srcObject;
-    const pistes = fluxCourant.getTracks();
-    pistes.forEach(piste => piste.stop()); // Éteint le capteur photo du portable
-    baliseVideo.srcObject = null;
-  }
-}
+    const maintenant = Date.now();
+    const position = { x: event.clientX, y: event.clientY };
 
-// 3. Gestion des boutons de Filtres en direct
-document.addEventListener("DOMContentLoaded", () => {
-  const boutonsFiltres = document.querySelectorAll('.filter-btn');
-  const maWebcam = document.getElementById('webcam');
+    const doubleTap =
+      maintenant - dernierTap < 350 &&
+      carte === derniereCarte &&
+      dernierePosition &&
+      Math.abs(position.x - dernierePosition.x) < 45 &&
+      Math.abs(position.y - dernierePosition.y) < 45;
 
-  boutonsFiltres.forEach(bouton => {
-    bouton.addEventListener('click', () => {
-      boutonsFiltres.forEach(b => b.classList.remove('active-filter'));
-      bouton.classList.add('active-filter');
-      
-      const filtre = bouton.getAttribute('data-filter');
-      if (maWebcam) {
-        maWebcam.classList.remove('effet-sepia', 'effet-grayscale');
-        if (filtre === 'sepia') maWebcam.classList.add('effet-sepia');
-        if (filtre === 'grayscale') maWebcam.classList.add('effet-grayscale');
-      }
+    dernierTap = maintenant;
+    derniereCarte = carte;
+    dernierePosition = position;
+
+    if (!doubleTap) return;
+
+    const boutonLike = carte.querySelector(".like-btn");
+    if (boutonLike && !boutonLike.classList.contains("liked")) {
+      boutonLike.click();
+    }
+
+    const coeur = document.createElement("div");
+    coeur.textContent = "❤️";
+    coeur.style.cssText =
+      "position:absolute;left:" +
+      (position.x - carte.getBoundingClientRect().left) +
+      "px;top:" +
+      (position.y - carte.getBoundingClientRect().top) +
+      "px;transform:translate(-50%,-50%) scale(.5);" +
+      "font-size:80px;pointer-events:none;z-index:9999;" +
+      "transition:transform .25s ease,opacity .5s ease;opacity:1;";
+
+    if (getComputedStyle(carte).position === "static") {
+      carte.style.position = "relative";
+    }
+
+    carte.appendChild(coeur);
+
+    requestAnimationFrame(function () {
+      coeur.style.transform = "translate(-50%,-50%) scale(1.3)";
     });
+
+    setTimeout(function () {
+      coeur.style.opacity = "0";
+      coeur.style.transform = "translate(-50%,-50%) scale(1.6)";
+      setTimeout(function () {
+        coeur.remove();
+      }, 500);
+    }, 250);
   });
 });
-
-// 4. Simulation du bouton d'enregistrement
-let enTrainDeFilmer = false;
-function gererEnregistrement() {
-  const bouton = document.getElementById('bouton-capture');
-  const statut = document.getElementById('statut-enregistrement');
-  
-  if (!enTrainDeFilmer) {
-    enTrainDeFilmer = true;
-    bouton.classList.add('enregistrement-actif');
-    statut.innerText = "Enregistrement en cours... 🔴";
-    statut.style.color = "#fe2c55";
-  } else {
-    enTrainDeFilmer = false;
-    bouton.classList.remove('enregistrement-actif');
-    statut.innerText = "Vidéo enregistrée ! ✔";
-    statut.style.color = "#4ade80";
-  }
-}

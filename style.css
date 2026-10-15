@@ -1,312 +1,486 @@
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
-  background-color: #000;
-  color: #fff;
-  font-family: sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+    background-color: #000000;
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
-.fasotoc-app {
-  position: relative;
-  width: 100%;
-  max-width: 420px;y
-  height: 100vh;
-  background-color: #000;
-  overflow: hidden;
+.main-wrapper {
+    flex: 1;
+    width: 100%;
+    max-width: 450px; 
+    margin: 0 auto;
+    height: calc(100vh - 60px);
+    position: relative;
 }
 
-.top-nav {
-  position: absolute;
-  top: 20px;
-  left: 0;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-  z-index: 99;
+/* FLUX VIDÉO */
+.feed-container {
+    width: 100%; height: 100%;
+    overflow-y: scroll; scroll-snap-type: y mandatory; 
+    scrollbar-width: none; background-color: #000;
+}
+.feed-container::-webkit-scrollbar { display: none; }
+
+.video-slide {
+    width: 100%; height: 100%; scroll-snap-align: start; 
+    position: relative; background-color: #000;
+    display: flex; justify-content: center; align-items: center;
 }
 
-.top-nav span {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.6);
-  font-weight: 600;
+.tok-video { width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
+.video-meta { position: absolute; left: 15px; bottom: 25px; max-width: 75%; z-index: 10; text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9); }
+.creator-handle { font-size: 1rem; font-weight: bold; margin-bottom: 6px; }
+.video-caption { font-size: 0.88rem; line-height: 1.3; color: #f1f1f1; }
+
+/* ACTIONS LATÉRALES */
+.side-actions { position: absolute; right: 15px; bottom: 40px; display: flex; flex-direction: column; align-items: center; gap: 20px; z-index: 10; }
+.action-btn { background: none; border: none; color: #ffffff; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+.action-btn span:first-child { font-size: 1.8rem; }
+.action-btn .count { font-size: 0.75rem; margin-top: 4px; font-weight: bold; }
+
+.creator-avatar { position: relative; margin-bottom: 10px; }
+.avatar-icon { background-color: #333; border-radius: 50%; padding: 8px; border: 2px solid #ffffff; display: block;}
+.follow-plus {
+    position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%);
+    background-color: #ef2950; color: #fff; border-radius: 50%; width: 18px; height: 18px;
+    font-size: 0.8rem; display: flex; justify-content: center; align-items: center; font-weight: bold;
+}
+.liked { color: #ef2950 !important; animation: pop 0.3s ease-in-out; }
+@keyframes pop { 50% { transform: scale(1.3); } }
+
+.hidden { display: none !important; }
+
+/* PROFIL & FORMULAIRE */
+.profile-container { width: 100%; height: 100%; background-color: #121212; display: flex; justify-content: center; align-items: center; padding: 20px; overflow-y: auto; }
+.auth-box { width: 100%; background-color: #1e1e1e; padding: 30px 20px; border-radius: 16px; border: 1px solid #2d2d2d; }
+.auth-box h2 { font-size: 1.6rem; text-align: center; margin-bottom: 8px; }
+.auth-subtitle { font-size: 0.85rem; color: #aaa; text-align: center; margin-bottom: 25px; }
+.input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+.input-group label { font-size: 0.85rem; color: #ddd; }
+.input-group input { background-color: #2a2a2a; border: 1px solid #3d3d3d; color: #ffffff; padding: 12px; border-radius: 8px; outline: none; }
+.input-group input:focus { border-color: #4facfe; }
+.terms-group { display: flex; align-items: center; gap: 8px; margin-bottom: 25px; font-size: 0.8rem; color: #bbb; }
+.submit-btn { width: 100%; background: linear-gradient(90deg, #ef2950 0%, #ff5e62 100%); color: white; border: none; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.auth-footer { text-align: center; margin-top: 20px; font-size: 0.85rem; color: #aaa; }
+.auth-footer a { color: #4facfe; text-decoration: none; }
+
+/* NOUVEAU : STYLE DE L'ÉCRAN APPAREIL PHOTO */
+.camera-container {
+    width: 100%; height: 100%;
+    background-color: #000000;
+    position: relative;
+    display: flex; justify-content: center; align-items: center;
 }
 
-.top-nav .active-tab {
-  color: #fff;
-  border-bottom: 2px solid #fff;
-  padding-bottom: 4px;
+#camera-preview {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: 1;
 }
 
-.country-flag {
-  position: absolute;
-  right: 20px;
-  font-size: 20px;
+.camera-fallback {
+    position: absolute; text-align: center; padding: 30px; color: #777; z-index: 0;
+}
+.camera-fallback span { font-size: 3.5rem; display: block; margin-bottom: 10px; }
+
+/* Éléments superposés à la caméra */
+.camera-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 5; display: flex; flex-direction: column; justify-content: space-between;
+    padding: 25px;
 }
 
-.video-feed {
-  width: 100%;
-  height: 100%;
+.exit-camera-btn {
+    align-self: flex-start; background: rgba(0,0,0,0.5); border: none;
+    color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; cursor: pointer;
 }
 
-.video-card {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  background-color: #111;
+.capture-controls {
+    align-self: center; display: flex; flex-direction: column; align-items: center; gap: 10px;
+    margin-bottom: 20px;
 }
 
-.video-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* Bouton d'enregistrement type TikTok */
+.record-button {
+    width: 74px; height: 74px; border-radius: 50%; background: none;
+    border: 4px solid #ffffff; display: flex; justify-content: center; align-items: center;
+    cursor: pointer; transition: transform 0.2s;
 }
 
-.video-sim-text {
-  color: rgba(255, 255, 255, 0.4);
-  font-size: 14px;
+.record-btn-inner {
+    width: 56px; height: 56px; border-radius: 50%; background-color: #ef2950;
+    transition: all 0.3s;
 }
 
-.interaction-sidebar {
-  position: absolute;
-  right: 12px;
-  bottom: 120px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  z-index: 90;
+/* Animation et changement de style lors de l'enregistrement */
+.recording .record-btn-inner {
+    border-radius: 8px; width: 32px; height: 32px;
+}
+.recording {
+    transform: scale(1.1);
 }
 
-.icon-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.record-status-text {
+    font-size: 0.85rem; font-weight: bold; text-shadow: 1px 1px 3px #000; letter-spacing: 0.5px;
 }
 
-.icon-group span {
-  font-size: 12px;
-  color: #fff;
-  margin-top: 4px;
-  font-weight: bold;
+/* MODALE DE COMMENTAIRES */
+.comment-modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.4); z-index: 100; display: flex; align-items: flex-end; }
+.comment-modal-content { width: 100%; height: 65%; background-color: #1e1e1e; border-top-left-radius: 16px; border-top-right-radius: 16px; display: flex; flex-direction: column; animation: slideUp 0.3s ease-out; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.comment-modal-header { padding: 15px; border-bottom: 1px solid #2d2d2d; display: flex; justify-content: space-between; align-items: center; }
+.comment-title { font-weight: bold; font-size: 0.95rem; text-align: center; flex: 1; margin-left: 25px;}
+.close-modal-btn { background: none; border: none; color: #aaa; font-size: 1.6rem; cursor: pointer; }
+.comment-list { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 15px; }
+.comment-item { display: flex; gap: 10px; align-items: flex-start; }
+.comment-avatar { background: #333; padding: 5px 8px; border-radius: 50%; font-size: 0.9rem; }
+.comment-info { display: flex; flex-direction: column; gap: 2px; }
+.comment-user { font-size: 0.8rem; font-weight: bold; color: #aaa; }
+.comment-text { font-size: 0.88rem; line-height: 1.3; }
+.comment-input-area { padding: 12px 15px; border-top: 1px solid #2d2d2d; background-color: #121212; display: flex; gap: 10px; }
+.comment-input-area input { flex: 1; background-color: #2a2a2a; border: none; border-radius: 20px; padding: 10px 15px; color: #fff; outline: none; }
+.send-comment-btn { background: none; border: none; color: #ef2950; font-weight: bold; cursor: pointer; }
+
+/* NAVBAR INFÉRIEURE */
+.fasotok-navbar {
+    background-color: #000000; border-top: 1px solid #292929;
+    display: flex; justify-content: space-around; align-items: center;
+    position: fixed; bottom: 0; width: 100%; height: 60px; z-index: 1000;
+}
+.nav-item { color: #8a8a8f; text-decoration: none; display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; height: 100%; }
+.nav-icon { font-size: 1.3rem; margin-bottom: 2px; }
+.nav-text { font-size: 0.7rem; }
+.nav-item.active { color: #ffffff; }
+.nav-create { max-width: 50px; height: 34px; background: linear-gradient(90deg, #00f2fe 0%, #4facfe 100%); border-radius: 8px; color: #000000 !important; }
+.plus-icon { font-size: 1.6rem; font-weight: bold; line-height: 1; }
+/* FASOTOK : AFFICHAGE VIDEO PLEIN ECRAN */
+.video-slide {
+    height: 100%;
+    height: 100dvh;
+    min-height: 100%;
+    position: relative;
+    overflow: hidden;
+    scroll-snap-align: start;
+    background: #000;
 }
 
-.action-btn {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.4);
-  border: none;
-  font-size: 24px;
-  color: #fff;
-  cursor: pointer;
+.tok-video,
+.video-slide > img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    background: #000;
 }
 
-.profile-group {
-  position: relative;
-  margin-bottom: 10px;
+.feed-container {
+    height: 100%;
+    height: 100dvh;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    overscroll-behavior-y: contain;
 }
 
-.circle-profile {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background-color: #333;
-  border: 2px solid #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 22px;
+.main-wrapper {
+    height: calc(100dvh - 60px);
+    max-width: 100%;
+}
+        injectCommentHTML(defaultUser, text);
+/* ===== FASOTOK : ADAPTATION PLEIN ECRAN ===== */
+
+#video-feed {
+width: 100%;
+height: 100vh;
+height: 100dvh;
+overflow-y: auto;
+overflow-x: hidden;
+scroll-snap-type: y mandatory;
+background: #000;
 }
 
-.plus-badge {
-  position: absolute;
-  bottom: -5px;
-  background-color: #fe2c55;
-  color: #fff;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 14px;
-  font-weight: bold;
+#video-feed .video-slide {
+position: relative;
+width: 100%;
+height: 100vh;
+height: 100dvh;
+overflow: hidden;
+background: #000;
+scroll-snap-align: start;
+scroll-snap-stop: always;
 }
 
-.music-disc {
-  font-size: 28px;
-  animation: rotateCD 3s linear infinite;
+#video-feed .tok-video,
+#video-feed .video-slide > video,
+#video-feed .video-slide > img {
+display: block;
+width: 100%;
+height: 100%;
+object-fit: cover;
+background: #000;
 }
 
-@keyframes rotateCD {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+#video-feed .video-meta {
+position: absolute;
+left: 12px;
+right: 82px;
+bottom: 90px;
+z-index: 3;
+color: #fff;
+text-shadow: 0 1px 4px #000;
 }
 
-.video-footer {
-  position: absolute;
-  left: 15px;
-  bottom: 80px;
-  width: 75%;
-  z-index: 90;
+#video-feed .side-actions {
+position: absolute;
+right: 12px;
+bottom: 105px;
+z-index: 5;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 20px;
 }
 
-.video-footer h3 {
-  font-size: 15px;
-  margin-bottom: 6px;
+#video-feed .action-btn {
+color: #fff;
+text-shadow: 0 1px 4px #000;
 }
 
-.video-footer p {
-  font-size: 13px;
-  color: #f1f1f1;
+#video-feed .like-btn.liked {
+transform: scale(1.12);
 }
 
-.bottom-nav {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 65px;
-  background-color: #000;
-  border-top: 1px solid #222;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  z-index: 100;
+#video-feed .like-btn.liked .icon-heart {
+filter: brightness(1.5);
 }
 
-.nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: #a1a1aa;
-  cursor: pointer;
+#video-feed .count {
+display: block;
+font-size: 12px;
 }
 
-.nav-item span { font-size: 20px; }
-.nav-item p { font-size: 10px; }
-.active-nav { color: #fff; }
-
-.plus-container {
-  position: relative;
-  width: 45px;
-  height: 30px;
+#video-feed .creator-handle,
+#video-feed .video-caption {
+color: #fff;
 }
 
-.tiktok-plus-btn {
-  width: 100%;
-  height: 100%;
-  background-color: #fff;
-  border-radius: 8px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+#video-feed .video-slide video::-webkit-media-controls {
+z-index: 2;
 }
-/* --- DESIGN DU STUDIO POP-UP --- */
-.modal {
-  position: fixed !important;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.95);
-  z-index: 9999; /* Passe par-dessus absolument tout */
-  display: none; /* Masqué par défaut */
-  justify-content: center;
-  align-items: center;
+/* ===== FASOTOK : VRAI AFFICHAGE VIDEO PLEIN ECRAN ===== */
+
+html,
+body {
+width: 100%;
+height: 100%;
+margin: 0;
+padding: 0;
+background: #000;
 }
 
-/* S'active quand on ajoute la classe avec JavaScript */
-.modal.active {
-  display: flex !important;
+body {
+overflow: hidden;
 }
 
-.modal-content {
-  width: 100%;
-  max-width: 420px;
-  height: 100%;
-  padding: 20px;
-  text-align: center;
-  position: relative;
+.main-wrapper {
+width: 100%;
+height: 100vh;
+height: 100dvh;
+margin: 0;
+padding: 0;
 }
 
-.modal-content h2 {
-  margin-top: 40px;
-  font-size: 20px;
-  color: #fff;
+#video-feed.feed-container {
+position: fixed;
+inset: 0;
+width: 100%;
+height: 100vh;
+height: 100dvh;
+margin: 0;
+padding: 0;
+overflow-x: hidden;
+overflow-y: auto;
+background: #000;
+scroll-snap-type: y mandatory;
+scrollbar-width: none;
 }
 
-/* Fenêtre de la caméra */
-.camera-box {
-  width: 100%;
-  height: 350px;
-  background-color: #111;
-  border-radius: 12px;
-  overflow: hidden;
-  margin: 20px 0;
-  border: 2px solid #222;
+#video-feed::-webkit-scrollbar {
+display: none;
 }
 
-#webcam {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform: scaleX(-1); /* Effet miroir naturel */
+#video-feed .video-slide {
+position: relative;
+display: block;
+width: 100%;
+height: 100vh;
+height: 100dvh;
+min-height: 100vh;
+min-height: 100dvh;
+margin: 0;
+padding: 0;
+overflow: hidden;
+background: #000;
+scroll-snap-align: start;
+scroll-snap-stop: always;
 }
 
-/* Boutons de Filtres */
-.options-container { margin: 15px 0; }
-.options-container p { font-size: 14px; margin-bottom: 8px; color: #a1a1aa; }
-.btn-row { display: flex; justify-content: center; gap: 10px; }
-
-.filter-btn {
-  background: #222;
-  border: none;
-  color: #fff;
-  padding: 6px 12px;
-  border-radius: 15px;
-  font-size: 13px;
-  cursor: pointer;
-}
-.filter-btn.active-filter { background: #fe2c55 !important; font-weight: bold; }
-
-/* Filtres caméra */
-.effet-sepia { filter: sepia(0.8) contrast(1.2) !important; }
-.effet-grayscale { filter: grayscale(1) contrast(1.1) !important; }
-
-/* Bouton Fermer Croix */
-.close-studio-btn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: #fff;
-  font-size: 30px;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  cursor: pointer;
+#video-feed .tok-video,
+#video-feed .video-slide > video,
+#video-feed .video-slide > img {
+position: absolute;
+inset: 0;
+display: block;
+width: 100%;
+height: 100%;
+max-width: none;
+max-height: none;
+margin: 0;
+padding: 0;
+border: 0;
+object-fit: cover;
+object-position: center;
+background: #000;
 }
 
-/* Bouton Enregistrement Rouge */
-.capture-container { margin-top: 15px; }
-.gros-bouton-rouge {
-  width: 70px; height: 70px; border-radius: 50%; border: 4px solid #fff;
-  display: flex; justify-content: center; align-items: center; margin: 0 auto 8px auto; cursor: pointer;
+#video-feed .video-meta {
+position: absolute;
+left: 14px;
+right: 80px;
+bottom: calc(90px + env(safe-area-inset-bottom));
+z-index: 4;
+color: #fff;
+text-shadow: 0 1px 4px #000;
 }
-.centre-bouton { width: 52px; height: 52px; border-radius: 50%; background: #fe2c55; transition: all 0.3s; }
-.gros-bouton-rouge.enregistrement-actif .centre-bouton { border-radius: 8px; scale: 0.7; }
-#statut-enregistrement { font-size: 13px; color: #a1a1aa; }
+
+#video-feed .side-actions {
+position: absolute;
+right: 10px;
+bottom: calc(100px + env(safe-area-inset-bottom));
+z-index: 5;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 18px;
+}
+
+#video-feed .side-actions button {
+display: flex;
+flex-direction: column;
+align-items: center;
+color: #fff;
+background: transparent;
+border: 0;
+font-size: 25px;
+text-shadow: 0 1px 4px #000;
+}
+
+#video-feed .side-actions .count {
+font-size: 12px;
+}
+
+#video-feed .creator-avatar {
+color: #fff;
+}
+
+.fasotok-navbar {
+position: fixed;
+z-index: 20;
+left: 0;
+right: 0;
+bottom: 0;
+width: 100%;
+padding-bottom: env(safe-area-inset-bottom);
+background: #080808;
+}
+
+/* Les autres pages restent accessibles */
+#amis-screen,
+#messages-screen,
+#profile-screen,
+#publication-screen,
+#camera-screen {
+height: 100vh;
+height: 100dvh;
+overflow-y: auto;
+box-sizing: border-box;
+padding: 20px 15px 90px;
+color: #fff;
+background: #111;
+}
+
+.hidden {
+display: none !important;
+}
+/* CORRECTION AFFICHAGE DES VIDEOS FASOTOK */
+
+.post-video,
+.post video,
+.video-container video,
+.feed-video {
+display: block;
+width: 100%;
+height: 100%;
+object-fit: cover;
+background: #000;
+}
+
+.post-video-container,
+.video-container {
+width: 100%;
+height: 100%;
+overflow: hidden;
+}
+
+.feed-item video {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+/* FASOTOK — CORRECTION DOUBLE TAPOTAGE */
+#video-feed .video-slide {
+touch-action: manipulation;
+}
+
+#video-feed .tok-video {
+pointer-events: none;
+}
+
+#video-feed .video-meta,
+#video-feed .side-actions {
+pointer-events: auto;
+}
+
+.fasotok-heart-animation {
+position: fixed;
+z-index: 999999;
+pointer-events: none;
+font-size: 90px;
+line-height: 1;
+transform: translate(-50%, -50%) scale(1);
+animation: fasotok-heart-pop 0.7s ease-out forwards;
+}
+
+@keyframes fasotok-heart-pop {
+0% {
+opacity: 0;
+transform: translate(-50%, -50%) scale(0.3);
+}
+35% {
+opacity: 1;
+transform: translate(-50%, -50%) scale(1.3);
+}
+100% {
+opacity: 0;
+transform: translate(-50%, -70%) scale(1.5);
+}
+}

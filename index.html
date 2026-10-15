@@ -1,123 +1,143 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#000000">
   <title>FasoTok 🇧🇫</title>
   <link rel="stylesheet" href="Style.css">
 </head>
+
 <body>
-  <div class="app-shell">
-    <header class="top-nav" id="top-nav">
-      <button class="top-tab" data-feed="following">Abonnements</button>
-      <button class="top-tab active-tab" data-feed="foryou">Pour toi</button>
-      <span class="country-flag" aria-label="Burkina Faso">🇧🇫</span>
-    </header>
+  <div class="fasotoc-app">
 
-    <main id="screens">
-      <section id="home-screen" class="screen">
-        <div id="video-feed" class="video-feed" aria-label="Fil des publications">
-          <article class="video-slide demo-slide" data-id="demo-1">
-            <div class="video-placeholder demo-background">
-              <div class="video-sim-text">Bienvenue sur FasoTok 🇧🇫<br><small>Ajoute ta première photo ou vidéo avec le bouton +</small></div>
-            </div>
-            <div class="side-actions">
-              <button class="creator-avatar follow-btn" aria-label="Suivre le créateur">🇧🇫<span class="follow-plus">+</span></button>
-              <button class="action-btn like-btn" aria-label="J'aime"><span class="action-icon">❤️</span><span class="count like-count">0</span></button>
-              <button class="action-btn comment-btn" aria-label="Commentaires"><span class="action-icon">💬</span><span class="count comment-count">0</span></button>
-              <button class="action-btn save-btn" aria-label="Enregistrer"><span class="action-icon">🔖</span><span class="count">Enregistrer</span></button>
-              <button class="action-btn share-btn" aria-label="Partager"><span class="action-icon">↗️</span><span class="count">Partager</span></button>
-            </div>
-            <div class="video-meta">
-              <div class="creator-handle">@FasoTok</div>
-              <p class="video-caption">Bienvenue dans la communauté FasoTok ! 🇧🇫 #FasoTok</p>
-              <div class="music-ticker">🎵 Son original - FasoTok</div>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section id="discover-screen" class="screen hidden page-screen">
-        <h2>Découvrir 🔍</h2>
-        <label class="search-box"><span>🔍</span><input id="search-input" type="search" placeholder="Rechercher un pseudo ou une légende"></label>
-        <div id="search-results" class="search-results"><p class="muted">Recherche dans les publications de ce téléphone.</p></div>
-      </section>
-
-      <section id="messages-screen" class="screen hidden page-screen">
-        <h2>Boîte de réception</h2>
-        <p class="muted">Les messages entre différents utilisateurs nécessitent un serveur et des comptes en ligne.</p>
-        <div class="info-card">💬 La messagerie sera connectée lors d'une prochaine étape.</div>
-      </section>
-
-      <section id="profile-screen" class="screen hidden page-screen">
-        <h2>Profil</h2>
-        <div class="profile-header">
-          <div class="profile-avatar" id="profile-avatar">🇧🇫</div>
-          <div><h3 id="profile-name">@fasotok</h3><p id="profile-bio" class="muted">Bienvenue sur mon profil !</p></div>
-        </div>
-        <label class="field-label" for="username-input">Pseudo</label>
-        <input id="username-input" class="text-field" maxlength="30" placeholder="Ex. monpseudo">
-        <label class="field-label" for="bio-input">Description</label>
-        <textarea id="bio-input" class="text-field" rows="2" maxlength="120" placeholder="Présente-toi..."></textarea>
-        <button id="save-profile-btn" class="primary-btn">Enregistrer le profil</button>
-        <h3 class="section-heading">Mes publications</h3>
-        <div id="my-posts" class="my-posts"><p class="muted">Tes publications apparaîtront ici.</p></div>
-      </section>
-    </main>
-
-    <nav class="bottom-nav" aria-label="Navigation principale">
-      <button class="nav-item active-nav" data-screen="home-screen"><span>🏠</span><small>Accueil</small></button>
-      <button class="nav-item" data-screen="discover-screen"><span>🔍</span><small>Découvrir</small></button>
-      <button class="nav-item plus-container" id="open-studio-btn" aria-label="Créer une publication"><span class="tiktok-plus-btn">+</span></button>
-      <button class="nav-item" data-screen="messages-screen"><span>⚡</span><small>Boîte</small></button>
-      <button class="nav-item" data-screen="profile-screen"><span>👤</span><small>Profil</small></button>
-    </nav>
-  </div>
-
-  <input type="file" id="media-picker" accept="image/*,video/*" multiple hidden>
-
-  <div id="upload-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="studio-title">
-    <div class="modal-content">
-      <button class="close-studio-btn" id="close-studio-btn" aria-label="Fermer">×</button>
-      <h2 id="studio-title">Studio de création 🇧🇫</h2>
-      <p class="muted">Choisis un média dans ton téléphone ou utilise la caméra si ton navigateur l'autorise.</p>
-      <button id="choose-media-btn" class="primary-btn">📁 Choisir photo ou vidéo</button>
-      <div class="camera-box">
-        <video id="webcam" autoplay playsinline muted class="hidden"></video>
-        <div id="camera-placeholder" class="camera-placeholder">📷<br><small>La caméra n'est pas activée.</small></div>
-      </div>
-      <div class="options-container">
-        <p>Filtres d'aperçu :</p>
-        <div class="btn-row">
-          <button class="filter-btn active-filter" data-filter="none">Normal</button>
-          <button class="filter-btn" data-filter="sepia">Vintage</button>
-          <button class="filter-btn" data-filter="grayscale">N&B</button>
-        </div>
-      </div>
-      <div class="capture-container">
-        <button id="start-camera-btn" class="secondary-btn">Activer la caméra</button>
-        <button id="capture-btn" class="record-button" disabled><span class="record-btn-inner"></span></button>
-        <p id="record-status">Choisis un média pour commencer.</p>
-      </div>
-      <label class="field-label" for="caption-input">Légende de la publication</label>
-      <textarea id="caption-input" class="text-field" rows="2" maxlength="300" placeholder="Écris une légende..."></textarea>
-      <button id="publish-btn" class="primary-btn" disabled>Publier sur Accueil</button>
+    <!-- BARRE DU HAUT -->
+    <div class="top-nav">
+      <span>Abonnements</span>
+      <span class="active-tab">Pour toi</span>
+      <span class="country-flag">🇧🇫</span>
     </div>
-  </div>
 
-  <div id="comment-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="comment-title">
-    <div class="comment-modal-content">
-      <div class="comment-modal-header"><h3 id="comment-title">Commentaires</h3><button id="close-comments-btn" class="close-studio-btn" aria-label="Fermer">×</button></div>
-      <div id="comment-list" class="comment-list"></div>
-      <form id="comment-form" class="comment-input-area">
-        <input id="comment-input" maxlength="300" placeholder="Ajouter un commentaire..." autocomplete="off" required>
-        <button class="send-comment-btn" type="submit">Envoyer</button>
-      </form>
+    <!-- ZONE DES VIDÉOS -->
+    <div class="video-feed">
+      <section class="video-card">
+        <div class="video-placeholder"
+             style="background: linear-gradient(to bottom, #111, #222);">
+          <div class="video-sim-text">
+            Vidéo de @Burkina_Concept ✨
+          </div>
+        </div>
+
+        <!-- BARRE LATÉRALE DROITE -->
+        <div class="interaction-sidebar">
+          <div class="icon-group profile-group">
+            <div class="circle-profile">🇧🇫</div>
+            <div class="plus-badge">+</div>
+          </div>
+
+          <div class="icon-group" onclick="toggleLike(this)">
+            <button class="action-btn heart-btn">❤️</button>
+            <span>12.5k</span>
+          </div>
+
+          <div class="icon-group">
+            <button class="action-btn">💬</button>
+            <span>452</span>
+          </div>
+
+          <div class="icon-group" onclick="toggleBookmark(this)">
+            <button class="action-btn bookmark-btn">💛</button>
+            <span>89</span>
+          </div>
+
+          <div class="icon-group">
+            <div class="music-disc">💿</div>
+          </div>
+        </div>
+
+        <!-- DESCRIPTION EN BAS -->
+        <div class="video-footer">
+          <h3>@Burkina_Concept</h3>
+          <p>
+            Nouveau challenge de danse à Ouagadougou !
+            🇧🇫 #FasoTok #Burkina
+          </p>
+          <div class="music-ticker">
+            <span>🎵 Musique</span>
+          </div>
+        </div>
+      </section>
     </div>
+
+    <!-- STUDIO DE CRÉATION -->
+    <div id="upload-modal" class="modal">
+      <div class="modal-content">
+        <button class="close-studio-btn"
+                onclick="fermerStudio()">&times;</button>
+
+        <h2>Studio de création 🇧🇫</h2>
+
+        <div class="camera-box">
+          <video id="webcam" autoplay playsinline muted></video>
+        </div>
+
+        <div class="options-container">
+          <p>Filtres :</p>
+          <div class="btn-row">
+            <button class="filter-btn active-filter"
+                    data-filter="none">Normal</button>
+            <button class="filter-btn"
+                    data-filter="sepia">Vintage</button>
+            <button class="filter-btn"
+                    data-filter="grayscale">N&B</button>
+          </div>
+        </div>
+
+        <div class="capture-container">
+          <div class="gros-bouton-rouge"
+               id="bouton-capture"
+               onclick="gererEnregistrement()">
+            <div class="centre-bouton"></div>
+          </div>
+          <p id="statut-enregistrement">Prêt à enregistrer</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MENU DU BAS -->
+    <div class="bottom-nav">
+      <div class="nav-item active-nav">
+        <span>🏠</span>
+        <p>Accueil</p>
+      </div>
+
+      <div class="nav-item">
+        <span>🔍</span>
+        <p>Découvrir</p>
+      </div>
+
+      <div class="nav-item plus-container"
+           onclick="ouvrirStudio()">
+        <div class="tiktok-plus-btn">
+          <span class="plus-icon">+</span>
+        </div>
+      </div>
+
+      <div class="nav-item">
+        <span>⚡</span>
+        <p>Boîte</p>
+      </div>
+
+      <div class="nav-item">
+        <span>👤</span>
+        <p>Profil</p>
+      </div>
+    </div>
+
   </div>
 
-  <div id="toast" class="toast hidden" role="status"></div>
+  <!-- JAVASCRIPT -->
   <script src="script2.js"></script>
 </body>
 </html>

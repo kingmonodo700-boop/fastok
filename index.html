@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -6,138 +5,496 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#000000">
   <title>FasoTok 🇧🇫</title>
-  <link rel="stylesheet" href="Style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <div class="fasotoc-app">
+<div class="fasotoc-app">
 
-    <!-- BARRE DU HAUT -->
-    <div class="top-nav">
-      <span>Abonnements</span>
-      <span class="active-tab">Pour toi</span>
-      <span class="country-flag">🇧🇫</span>
-    </div>
+  <!-- BARRE DU HAUT -->
+  <header class="top-nav" id="top-nav">
+    <span>Communauté</span>
+    <span>Suivis</span>
+    <span class="active">Pour toi</span>
+    <button type="button" aria-label="Rechercher">⌕</button>
+  </header>
 
-    <!-- ZONE DES VIDÉOS -->
-    <div class="video-feed">
-      <section class="video-card">
-        <div class="video-placeholder"
-             style="background: linear-gradient(to bottom, #111, #222);">
-          <div class="video-sim-text">
-            Vidéo de @Burkina_Concept ✨
-          </div>
+  <!-- CONTENU PRINCIPAL -->
+  <main class="app-content">
+
+    <!-- ACCUEIL -->
+    <section id="home-page" class="page-section">
+      <div id="video-feed" class="video-feed">
+        <div class="placeholder-view">
+          <h2>Bienvenue sur FasoTok 🇧🇫</h2>
+          <p>Les vidéos apparaîtront ici.</p>
         </div>
+      </div>
+      <div id="fixed-video-sidebar"></div>
+    </section>
 
-        <!-- BARRE LATÉRALE DROITE -->
-        <div class="interaction-sidebar">
-          <div class="icon-group profile-group">
-            <div class="circle-profile">🇧🇫</div>
-            <div class="plus-badge">+</div>
-          </div>
+    <!-- AMIS -->
+    <section id="friends-page" class="page-section" hidden>
+      <div class="placeholder-view">
+        <h2>Amis</h2>
+        <p>Retrouve ta communauté sur FasoTok.</p>
+      </div>
+    </section>
 
-          <div class="icon-group" onclick="toggleLike(this)">
-            <button class="action-btn heart-btn">❤️</button>
-            <span>12.5k</span>
-          </div>
+    <!-- MESSAGES -->
+    <section id="inbox-page" class="page-section" hidden>
+      <div class="placeholder-view">
+        <h2>Messages</h2>
+        <p>Tes conversations apparaîtront ici.</p>
+      </div>
+    </section>
 
-          <div class="icon-group">
-            <button class="action-btn">💬</button>
-            <span>452</span>
-          </div>
+    <!-- ASSISTANT -->
+    <section id="assistant-page" class="page-section" hidden>
+      <button id="back-home-btn" type="button">← Accueil</button>
+      <h2>Assistant FasoTok</h2>
 
-          <div class="icon-group" onclick="toggleBookmark(this)">
-            <button class="action-btn bookmark-btn">💛</button>
-            <span>89</span>
-          </div>
+      <div id="assistant-reponses"></div>
 
-          <div class="icon-group">
-            <div class="music-disc">💿</div>
-          </div>
+      <form id="assistant-form">
+        <input
+          id="assistant-question"
+          type="text"
+          placeholder="Écris ta question..."
+          autocomplete="off"
+        >
+        <button id="assistant-envoyer" type="submit">Envoyer</button>
+      </form>
+    </section>
+
+    <!-- PROFIL -->
+    <section id="profile-page" class="page-section" hidden>
+      <header class="profile-header">
+        <h2 id="profil-titre">Mon profil</h2>
+        <button
+          id="open-settings-btn"
+          type="button"
+          aria-label="Ouvrir les paramètres"
+        >⚙️</button>
+      </header>
+
+      <div class="profile-info-container">
+        <div class="profile-avatar">👤</div>
+        <h3 class="profile-username">@FasoTok</h3>
+        <p class="profile-bio">Bienvenue sur mon profil.</p>
+
+        <div class="profile-stats">
+          <span>Vidéos</span>
+          <span>Abonnés</span>
+          <span>Abonnements</span>
         </div>
+      </div>
 
-        <!-- DESCRIPTION EN BAS -->
-        <div class="video-footer">
-          <h3>@Burkina_Concept</h3>
-          <p>
-            Nouveau challenge de danse à Ouagadougou !
-            🇧🇫 #FasoTok #Burkina
+      <div id="portefeuille-section">
+        <h3>Mon portefeuille</h3>
+        <p>Solde : <span id="portefeuille-solde">0</span></p>
+        <p>Gains : <span id="portefeuille-gains">0</span></p>
+        <h3>Historique</h3>
+        <p id="historique-message"></p>
+        <div id="historique-liste"></div>
+      </div>
+    </section>
+
+    <!-- PARAMÈTRES -->
+    <section id="parametres-page" class="page-section" hidden>
+      <button
+        id="back-home-btn-settings"
+        type="button"
+        onclick="document.querySelectorAll('.page-section').forEach(p=>p.hidden=true);document.getElementById('profile-page').hidden=false;"
+      >← Retour au profil</button>
+
+      <h2>Paramètres</h2>
+
+      <button id="modifier-profil-btn" type="button">
+        Modifier mon profil
+      </button>
+
+      <p>Confidentialité et préférences</p>
+
+      <label>
+        <input id="notifications-fasotok" type="checkbox">
+        Activer les notifications
+      </label>
+
+      <br>
+
+      <label>
+        <input id="son-videos-fasotok" type="checkbox" checked>
+        Son des vidéos
+      </label>
+
+      <h3>Langue de l’application</h3>
+      <select id="fasotok-langue">
+        <option value="fr">Français</option>
+        <option value="en">English</option>
+        <option value="mos">Mooré</option>
+        <option value="dyu">Dioula</option>
+        <option value="es">Español</option>
+        <option value="pt">Português</option>
+        <option value="de">Deutsch</option>
+        <option value="it">Italiano</option>
+        <option value="ar">العربية</option>
+        <option value="zh">中文</option>
+        <option value="hi">हिन्दी</option>
+        <option value="ru">Русский</option>
+      </select>
+
+      <p id="langue-message"></p>
+
+      <button id="deconnexion-fasotok" type="button">
+        Se déconnecter
+      </button>
+    </section>
+
+    <!-- MODIFICATION DU PROFIL -->
+    <section id="modifier-profil-page" class="page-section" hidden>
+      <button type="button" id="retour-parametres-profil">
+        ← Retour aux paramètres
+      </button>
+
+      <h2>Modifier mon profil</h2>
+
+      <label for="nouveau-pseudo">Mon pseudo</label>
+      <input id="nouveau-pseudo" type="text" placeholder="Ton pseudo">
+
+      <label for="nouvelle-bio">Ma biographie</label>
+      <textarea id="nouvelle-bio" placeholder="Présente-toi..."></textarea>
+
+      <button type="button" id="enregistrer-profil">
+        Enregistrer les modifications
+      </button>
+
+      <p id="message-modification-profil"></p>
+    </section>
+
+    <!-- CONFIDENTIALITÉ -->
+    <section id="confidentialite-page" class="page-section" hidden>
+      <button type="button" id="retour-parametres-confidentialite">
+        ← Retour aux paramètres
+      </button>
+
+      <h2>Confidentialité et préférences</h2>
+
+      <button id="ouvrir-confidentialite" type="button">
+        Confidentialité et sécurité
+      </button>
+
+      <button id="ouvrir-politique-confidentialite" type="button">
+        Politique de confidentialité
+      </button>
+
+      <button id="ouvrir-references-legales" type="button">
+        Références légales
+      </button>
+
+      <label>
+        <input id="profil-prive" type="checkbox">
+        Rendre mon profil privé
+      </label>
+
+      <p>
+        Le réglage est enregistré sur cet appareil. Il ne bloque pas encore
+        l’accès aux vidéos sur le serveur.
+      </p>
+    </section>
+
+    <!-- POLITIQUE DE CONFIDENTIALITÉ -->
+    <section id="politique-confidentialite-page" class="page-section" hidden>
+      <button
+        type="button"
+        onclick="document.querySelectorAll('.page-section').forEach(p=>p.hidden=true);document.getElementById('parametres-page').hidden=false;"
+      >← Retour aux paramètres</button>
+
+      <h2>Politique de confidentialité</h2>
+
+      <h3>1. Votre compte</h3>
+      <p>FasoTok utilise Supabase pour gérer les comptes et l’authentification.</p>
+
+      <h3>2. Vos vidéos</h3>
+      <p>
+        Les vidéos publiées peuvent être enregistrées sur le serveur FasoTok.
+        Leur accès dépend de la configuration du stockage et des autorisations.
+      </p>
+
+      <h3>3. Votre vie privée</h3>
+      <p>
+        Ne publiez pas d’informations personnelles que vous souhaitez garder
+        privées. Le réglage « profil privé » ne bloque pas, à lui seul,
+        l’accès aux vidéos sur le serveur.
+      </p>
+
+      <h3>4. Vos demandes</h3>
+      <p>
+        Pour demander des informations sur vos données ou leur suppression,
+        contactez l’équipe responsable de FasoTok.
+      </p>
+
+      <p>
+        Cette politique doit être complétée et vérifiée avant la mise à
+        disposition publique de l’application.
+      </p>
+    </section>
+
+    <!-- RÉFÉRENCES LÉGALES -->
+    <section id="references-legales-page" class="page-section" hidden>
+      <button
+        type="button"
+        onclick="document.querySelectorAll('.page-section').forEach(p=>p.hidden=true);document.getElementById('parametres-page').hidden=false;"
+      >← Retour aux paramètres</button>
+
+      <h2>Références légales</h2>
+
+      <h3>Éditeur</h3>
+      <p>FasoTok — informations sur le responsable de l’application à compléter.</p>
+
+      <h3>Hébergement et services</h3>
+      <p>
+        FasoTok utilise Supabase pour certains services de compte,
+        de base de données et de stockage.
+      </p>
+
+      <h3>Respect de la vie privée</h3>
+      <p>
+        Les règles applicables à la protection des données et aux contenus
+        publiés doivent être vérifiées avant la diffusion publique de FasoTok.
+      </p>
+
+      <h3>Contact</h3>
+      <p>Les coordonnées officielles du responsable de FasoTok restent à renseigner.</p>
+    </section>
+
+    <!-- PUBLICITÉ ET PARTENARIATS : UNE SEULE SECTION -->
+    <section id="publicite-page" class="page-section" hidden>
+      <div style="padding:20px;color:white;background:#111;min-height:100vh;">
+
+        <h2>📢 Publicité et partenariats</h2>
+
+        <p>
+          Faites connaître votre commerce ou votre entreprise grâce à FasoTok 🇧🇫.
+        </p>
+
+        <!-- CONTACT WHATSAPP -->
+        <button
+          type="button"
+          onclick="window.location.href='https://wa.me/?text='+encodeURIComponent('Bonjour, je souhaite obtenir des informations sur les publicités et partenariats FasoTok.')"
+          style="width:100%;padding:14px;margin-top:20px;background:#25D366;color:white;border:none;border-radius:10px;font-size:16px;"
+        >
+          Contacter FasoTok sur WhatsApp
+        </button>
+
+        <!-- PAIEMENT MOBILE MONEY -->
+        <div style="margin:20px 0;padding:18px;background:#202020;border-radius:14px;">
+          <h3>💳 Paiement des publicités</h3>
+          <p>Payez votre offre publicitaire FasoTok avec Moov Money.</p>
+
+          <div style="padding:14px;background:#292929;border-radius:10px;">
+            <p><strong>Opérateur :</strong> Moov Money</p>
+            <p><strong>Numéro de réception :</strong></p>
+
+            <p style="font-size:24px;font-weight:bold;color:#25D366;">
+              65 87 48 67
+            </p>
+
+            <button
+              type="button"
+              onclick="navigator.clipboard.writeText('65874867').then(function(){alert('Numéro Moov Money copié !')}).catch(function(){alert('Numéro Moov Money : 65874867')})"
+              style="padding:10px 14px;background:#25D366;color:white;border:0;border-radius:8px;"
+            >
+              Copier le numéro
+            </button>
+          </div>
+
+          <h4>Nos tarifs</h4>
+          <p>🎬 Offre Découverte : <strong>2 000 FCFA</strong></p>
+          <p>🚀 Offre Visibilité : <strong>5 000 FCFA</strong></p>
+          <p>🤝 Offre Partenaire : <strong>10 000 FCFA</strong></p>
+
+          <h4>Comment payer ?</h4>
+          <ol>
+            <li>Choisissez votre offre publicitaire.</li>
+            <li>Effectuez le paiement par Moov Money au numéro indiqué.</li>
+            <li>Conservez votre reçu de transaction.</li>
+            <li>Contactez FasoTok sur WhatsApp pour signaler votre paiement.</li>
+            <li>Attendez la confirmation du paiement avant la publication.</li>
+          </ol>
+
+          <p style="font-size:13px;color:#ccc;">
+            Attention : ne communiquez jamais votre code PIN Mobile Money.
+            Le paiement doit être vérifié avant toute publication publicitaire.
           </p>
-          <div class="music-ticker">
-            <span>🎵 Musique</span>
-          </div>
         </div>
-      </section>
+
+        <!-- OFFRE DÉCOUVERTE -->
+        <div style="padding:16px;background:#222;border-radius:12px;margin-top:20px;">
+          <h3>🎬 Offre Découverte</h3>
+          <p style="font-size:26px;font-weight:bold;color:#25D366;">2 000 FCFA</p>
+          <p>Une publication publicitaire avec une vidéo fournie par le commerçant.</p>
+          <ul>
+            <li>Présentation de votre commerce.</li>
+            <li>Une diffusion sur FasoTok.</li>
+          </ul>
+        </div>
+
+        <!-- OFFRE VISIBILITÉ -->
+        <div style="padding:16px;background:#222;border-radius:12px;margin-top:16px;">
+          <h3>🚀 Offre Visibilité</h3>
+          <p style="font-size:26px;font-weight:bold;color:#25D366;">5 000 FCFA</p>
+          <p>Une vidéo promotionnelle simple.</p>
+          <ul>
+            <li>Montage simple à partir des éléments fournis.</li>
+            <li>Une diffusion sur FasoTok.</li>
+            <li>Une correction simple avant publication.</li>
+          </ul>
+        </div>
+
+        <!-- OFFRE PARTENAIRE -->
+        <div style="padding:16px;background:#222;border-radius:12px;margin-top:16px;">
+          <h3>🤝 Offre Partenaire</h3>
+          <p style="font-size:26px;font-weight:bold;color:#25D366;">10 000 FCFA</p>
+          <p>Une campagne publicitaire de 7 jours.</p>
+          <ul>
+            <li>Jusqu'à trois publications publicitaires.</li>
+            <li>Présentation du commerce.</li>
+            <li>Petit bilan des publications réalisées.</li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+ 
+<!-- BARRE DE NAVIGATION DU BAS -->
+<nav class="bottom-nav">
+<input
+  type="file"
+  id="fasotok-selecteur"
+  accept="video/*"
+  hidden
+>
+  <button type="button" class="nav-item active" data-page="home" aria-label="Accueil">
+    <span class="nav-icon">⌂</span>
+  </button>
+
+  <button type="button" class="nav-item" data-page="friends" aria-label="Amis">
+    <span class="nav-icon">👥</span>
+  </button>
+
+  <button type="button" class="nav-item plus-container" id="publish-nav-btn" aria-label="Publier une vidéo">
+    <span class="tiktok-plus-btn">+</span>
+  </button>
+
+  <button type="button" class="nav-item" data-page="inbox" aria-label="Messages">
+    <span class="nav-icon">💬</span>
+  </button>
+
+  <button type="button" class="nav-item" data-page="profile" aria-label="Profil">
+    <span class="nav-icon">👤</span>
+  </button>
+
+</nav>
+
+
+  <!-- CONNEXION -->
+  <div id="auth-overlay" class="auth-overlay">
+    <div class="auth-container">
+      <h2>Bienvenue sur FasoTok 🇧🇫</h2>
+
+      <!-- FORMULAIRE DE CONNEXION -->
+      <form id="login-form" class="auth-form">
+        <h3>Se connecter</h3>
+
+        <div class="input-group-auth">
+          <input
+            id="login-username"
+            type="text"
+            placeholder="Ton pseudo"
+            required
+          >
+        </div>
+
+        <div class="input-group-auth">
+          <input
+            id="login-password"
+            type="password"
+            placeholder="Ton code secret"
+            required
+          >
+        </div>
+
+        <button class="auth-submit-btn" type="submit">
+          Se connecter
+        </button>
+
+        <p class="auth-switch-text">
+          Pas encore de compte ?
+          <button
+            id="switch-to-register"
+            type="button"
+            onclick="document.getElementById('login-form').hidden=true;document.getElementById('register-form').hidden=false;"
+          >Créer un compte</button>
+        </p>
+      </form>
+
+      <!-- FORMULAIRE DE CRÉATION DE COMPTE -->
+      <form id="register-form" class="auth-form" hidden>
+        <h3>Créer un compte</h3>
+
+        <div class="input-group-auth">
+          <input
+            id="register-username"
+            type="text"
+            placeholder="Choisis un pseudo"
+            required
+          >
+        </div>
+
+        <div class="input-group-auth">
+          <input
+            id="register-password"
+            type="password"
+            placeholder="Choisis un code secret"
+            required
+          >
+        </div>
+
+        <div class="input-group-auth">
+          <input
+            id="register-confirm-password"
+            type="password"
+            placeholder="Confirme ton code secret"
+            required
+          >
+        </div>
+
+        <button class="auth-submit-btn" type="submit">
+          Créer mon compte
+        </button>
+
+        <p class="auth-switch-text">
+          Déjà inscrit ?
+          <button
+            id="switch-to-login"
+            type="button"
+            onclick="document.getElementById('register-form').hidden=true;document.getElementById('login-form').hidden=false;"
+          >Se connecter</button>
+        </p>
+      </form>
     </div>
-
-    <!-- STUDIO DE CRÉATION -->
-    <div id="upload-modal" class="modal">
-      <div class="modal-content">
-        <button class="close-studio-btn"
-                onclick="fermerStudio()">&times;</button>
-
-        <h2>Studio de création 🇧🇫</h2>
-
-        <div class="camera-box">
-          <video id="webcam" autoplay playsinline muted></video>
-        </div>
-
-        <div class="options-container">
-          <p>Filtres :</p>
-          <div class="btn-row">
-            <button class="filter-btn active-filter"
-                    data-filter="none">Normal</button>
-            <button class="filter-btn"
-                    data-filter="sepia">Vintage</button>
-            <button class="filter-btn"
-                    data-filter="grayscale">N&B</button>
-          </div>
-        </div>
-
-        <div class="capture-container">
-          <div class="gros-bouton-rouge"
-               id="bouton-capture"
-               onclick="gererEnregistrement()">
-            <div class="centre-bouton"></div>
-          </div>
-          <p id="statut-enregistrement">Prêt à enregistrer</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- MENU DU BAS -->
-    <div class="bottom-nav">
-      <div class="nav-item active-nav">
-        <span>🏠</span>
-        <p>Accueil</p>
-      </div>
-
-      <div class="nav-item">
-        <span>🔍</span>
-        <p>Découvrir</p>
-      </div>
-
-      <div class="nav-item plus-container"
-           onclick="ouvrirStudio()">
-        <div class="tiktok-plus-btn">
-          <span class="plus-icon">+</span>
-        </div>
-      </div>
-
-      <div class="nav-item">
-        <span>⚡</span>
-        <p>Boîte</p>
-      </div>
-
-      <div class="nav-item">
-        <span>👤</span>
-        <p>Profil</p>
-      </div>
-    </div>
-
   </div>
 
-  <!-- JAVASCRIPT -->
-  <script src="script2.js"></script>
+</div>
+
+<!-- SCRIPTS : garder le moteur principal après Supabase -->
+<script src="script2.js"></script>
+<script src="traduction.js"></script>
+
 </body>
 </html>

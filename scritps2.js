@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loginForm.addEventListener("submit", async event => {
     
       event.preventDefault();
-
+alert("Le code de connexion de FasoTok fonctionne !");
       const username =
         document.getElementById("login-username").value.trim();
 

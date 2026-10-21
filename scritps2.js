@@ -104,123 +104,6 @@ document.addEventListener("DOMContentLoaded", () => {
       switchPage("home");
     });
   }
-
-
-  // Assistant IA : simulation conservée
-  const assistantForm = document.getElementById("assistant-form");
-  const assistantQuestion = document.getElementById("assistant-question");
-  const assistantReponses = document.getElementById("assistant-reponses");
-
-  if (assistantForm && assistantQuestion && assistantReponses) {
-    assistantForm.addEventListener("submit", event => {
-      event.preventDefault();
-
-      const question = assistantQuestion.value.trim();
-      if (!question) return;
-
-      const message = document.createElement("p");
-      message.textContent = "Moi : " + question;
-      assistantReponses.appendChild(message);
-
-      const reponse = document.createElement("p");
-      reponse.textContent = "🤖 L'assistant réfléchit...";
-      assistantReponses.appendChild(reponse);
-
-      assistantQuestion.value = "";
-
-      setTimeout(() => {
-        reponse.textContent =
-          "🤖 L'assistant est en mode démonstration. " +
-          "Une connexion à un service d'intelligence artificielle " +
-          "sera nécessaire pour obtenir de vraies réponses.";
-      }, 1500);
-    });
-  }
-
-  // Sélection de la langue
-  const langueSelect = document.getElementById("fasotok-langue");
-  const langueMessage = document.getElementById("langue-message");
-
-  if (langueSelect) {
-    langueSelect.addEventListener("change", event => {
-      const option = event.target.options[event.target.selectedIndex];
-
-      if (langueMessage && option) {
-        langueMessage.textContent =
-          "Langue sélectionnée : " + option.text;
-      }
-    });
-  }
-});
-
-
-// --- 3. AUTHENTIFICATION ET RESTAURATION DE SESSION ---
-document.addEventListener("DOMContentLoaded", () => {
-  const loginForm = document.getElementById("login-form");
-  const registerForm = document.getElementById("register-form");
-  const authOverlay = document.getElementById("auth-overlay");
-  const deconnexionBtn = document.getElementById("deconnexion-fasotok");
-
-  if (!supabaseClient) {
-    alert("Erreur : Supabase n'est pas initialisé.");
-    return;
-  }
-
-  function afficherUtilisateur(user) {
-    if (!user) return;
-
-    const username = user.user_metadata?.username || "Utilisateur";
-
-    document.querySelectorAll(
-      ".profile-username, .profile-header h2"
-    ).forEach(element => {
-      element.textContent = "@" + username;
-    });
-
-    if (authOverlay) {
-      authOverlay.style.display = "none";
-    }
-  }
-
-  // Restaurer la session existante
-  (async () => {
-    try {
-      const { data, error } = await supabaseClient.auth.getSession();
-
-      if (error) throw error;
-
-      if (data.session?.user) {
-        afficherUtilisateur(data.session.user);
-      }
-    } catch (error) {
-      console.error("Erreur de restauration de session :", error.message);
-    }
-  })();
-
-  // INSCRIPTION
-  if (registerForm) {
-    registerForm.addEventListener("submit", async event => {
-      event.preventDefault();
-
-      const username =
-        document.getElementById("register-username").value.trim();
-
-      const codeSecret =
-        document.getElementById("register-password").value;
-
-      const confirmation =
-        document.getElementById("register-confirm-password").value;
-
-      if (!/^[a-zA-Z0-9._-]{3,30}$/.test(username)) {
-        alert("Choisis un pseudo de 3 à 30 caractères : lettres, chiffres, point, tiret ou soulignement.");
-        return;
-      }
-
-      if (codeSecret !== confirmation) {
-        alert("Les codes secrets ne correspondent pas.");
-        return;
-      }
-
       if (codeSecret.length < 6) {
         alert("Choisis un code secret d'au moins 6 caractères.");
         return;
@@ -255,8 +138,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
-
-
   // CONNEXION : FasoTok
   if (loginForm) {
     loginForm.addEventListener("submit", async event => {
@@ -335,8 +216,6 @@ console.log("FasoTok : le gestionnaire de connexion fonctionne.");
     });
   }
 });
-
-
 /* --- FASOTOK : BOUTONS SUR CHAQUE VIDÉO --- */
 async function ajouterBoutonsVideo(carte, video, username, videoId) {
  
@@ -390,8 +269,6 @@ const actions = [
   { icon: "🔖", label: "Favoris", action: "favoris", count: 0 },
   { icon: "↗", label: "Partager", action: "share" }
 ];
-
-
 const { count: nombreLikes, error: erreurLikes } =
   await supabaseClient
     .from("likes")
@@ -473,8 +350,7 @@ if (item.action === "like") {
       alert("Identifiant de vidéo introuvable.");
       return;
     }
-
-    const { data: likeExistant, error: rechercheErreur } =
+const { data: likeExistant, error: rechercheErreur } =
       await supabaseClient
         .from("likes")
         .select("id")
@@ -542,8 +418,7 @@ if (item.action === "comment") {
         alert("Identifiant de vidéo introuvable.");
         return;
       }
-
-      const { error: erreurCommentaire } = await supabaseClient
+const { error: erreurCommentaire } = await supabaseClient
         .from("comments")
         .insert({
           user_id: utilisateur.id,
@@ -613,8 +488,7 @@ document.addEventListener("DOMContentLoaded", () => {
   boutonPublier.addEventListener("click", () => {
     selecteur.click();
   });
-
-  selecteur.addEventListener("change", async () => {
+selecteur.addEventListener("change", async () => {
     const fichier = selecteur.files?.[0];
 
     if (!fichier) return;
@@ -710,7 +584,6 @@ const { data: videoInseree, error: insertionError } = await supabaseClient
       if (insertionError) {
         console.error("Erreur table videos :", insertionError);
 
-        
         // Nettoyage du fichier si l'insertion échoue
         const { error: nettoyageError } = await supabaseClient.storage
           .from("videos")
@@ -815,8 +688,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const fil = document.getElementById("video-feed");
 
   if (!fil || !supabaseClient) return;
-
-  try {
+try {
     const { data: videos, error } = await supabaseClient
       .from("videos")
       .select("*")
@@ -934,8 +806,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     gainsElement.textContent = "Indisponible";
     return;
   }
-
-  try {
+try {
     const { data: sessionData, error: sessionError } =
       await window.supabaseClient.auth.getSession();
 
@@ -968,108 +839,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     gainsElement.textContent =
       Number(data.gains_total_fcfa).toLocaleString("fr-FR") + " FCFA";
-
-    console.log("FasoTok : portefeuille chargé.");
-  } catch (error) {
-    console.error("Erreur de chargement du portefeuille :", error);
-    soldeElement.textContent = "Erreur de chargement";
-    gainsElement.textContent = "Erreur de chargement";
-  }
-});
-
-/* --- FASOTOK : CHARGEMENT DE L'HISTORIQUE --- */
-document.addEventListener("DOMContentLoaded", async () => {
-  const liste = document.getElementById("historique-liste");
-  const message = document.getElementById("historique-message");
-
-  if (!liste || !message || !window.supabaseClient) return;
-
-  try {
-    const { data: sessionData, error: sessionError } =
-      await window.supabaseClient.auth.getSession();
-
-    if (sessionError) throw sessionError;
-
-    const utilisateur = sessionData.session?.user;
-
-    if (!utilisateur) {
-      message.textContent = "Connecte-toi pour voir ton historique.";
-      return;
-    }
-
-    const { data, error } = await window.supabaseClient
-      .from("historique_portefeuille")
-      .select("type_operation, montant_fcfa, description, statut, created_at")
-      .eq("utilisateur_id", utilisateur.id)
-      .order("created_at", { ascending: false })
-      .limit(20);
-
-    if (error) throw error;
-
-    liste.replaceChildren();
-
-    if (!data || data.length === 0) {
-      message.textContent = "Aucune opération pour le moment.";
-      return;
-    }
-
-    message.textContent = "Dernières opérations :";
-
-    data.forEach(operation => {
-      const element = document.createElement("li");
-      const date = new Date(operation.created_at).toLocaleDateString("fr-FR");
-
-      element.textContent =
-        `${operation.type_operation} — ` +
-        `${Number(operation.montant_fcfa).toLocaleString("fr-FR")} FCFA — ` +
-        `${operation.statut} — ${date}` +
-        (operation.description ? ` — ${operation.description}` : "");
-
-      liste.appendChild(element);
-    });
-  } catch (error) {
-    console.error("Erreur historique FasoTok :", error);
-    message.textContent = "Impossible de charger l'historique.";
-  }
-});
-/* --- FASOTOK : PROFIL ET CONFIDENTIALITÉ --- */
-document.addEventListener("DOMContentLoaded", () => {
-const afficher = (id) => {
-document.querySelectorAll(".page-section").forEach(page => {
-page.hidden = true;
-});
-const page = document.getElementById(id);
-if (page) page.hidden = false;
-};
-
-const boutonModifier = document.getElementById("modifier-profil-btn");
-const boutonConfidentialite = [...document.querySelectorAll("#parametres-page p")]
-.find(p => p.textContent.includes("Confidentialité et préférences"));
-
-if (boutonModifier) {
-boutonModifier.addEventListener("click", () => {
-const pseudo = localStorage.getItem("fasotok_pseudo") || "";
-const bio = localStorage.getItem("fasotok_bio") || "";
-
-  document.getElementById("nouveau-pseudo").value = pseudo;
-  document.getElementById("nouvelle-bio").value = bio;
-  afficher("modifier-profil-page");
-});
-
-}
-
-if (boutonConfidentialite) {
-boutonConfidentialite.style.cursor = "pointer";
-boutonConfidentialite.addEventListener("click", () => {
-document.getElementById("profil-prive").checked =
-localStorage.getItem("fasotok_profil_prive") === "true";
-afficher("confidentialite-page");
-});
-}
-
-document.getElementById("retour-parametres-profil")
-?.addEventListener("click", () => afficher("parametres-page"));
-
 document.getElementById("retour-parametres-confidentialite")
 ?.addEventListener("click", () => afficher("parametres-page"));
 

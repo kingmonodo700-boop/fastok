@@ -751,7 +751,7 @@ body {
 }
 
 #fixed-video-sidebar {
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 .bottom-nav {
@@ -1042,6 +1042,70 @@ font-size: 21px;
 font-size: 9px;
 }
 }
+/* FASOTOK 🇧🇫 — BARRE DU BAS STYLE TIKTOK */
+
+.bottom-nav {
+position: relative;
+z-index: 99999;
+display: flex;
+flex-direction: row;
+justify-content: space-around;
+align-items: center;
+width: 100%;
+height: 64px;
+min-height: 64px;
+padding: 4px 2px;
+background: #000;
+border-top: 1px solid #292929;
+flex-shrink: 0;
+}
+
+.bottom-nav .nav-item {
+flex: 1;
+min-width: 0;
+height: 100%;
+padding: 0;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+gap: 5px;
+color: #aaa;
+background: transparent;
+border: none;
+}
+
+.bottom-nav .nav-item > span:first-child {
+display: block;
+font-size: 23px;
+line-height: 1;
+}
+
+.bottom-nav .nav-item > span:last-child {
+display: block;
+font-size: 10px;
+line-height: 1.2;
+white-space: nowrap;
+}
+
+.bottom-nav .nav-item.active,
+.bottom-nav .nav-item.active-nav {
+color: #fff;
+}
+
+.bottom-nav .nav-item:active {
+transform: scale(0.94);
+}
+
+.bottom-nav .nav-item:focus-visible {
+outline: 2px solid #25f4ee;
+outline-offset: -3px;
+}
+/* FASOTOK — FINITION DES TOUCHES DU BAS */
+
+.bottom-nav {
+height: 68px;
+min-height: 68px;
 background: #000;
 border-top: 1px solid #252525;
 padding: 5px 3px 7px;
@@ -1080,6 +1144,106 @@ font-size: 27px !important;
 line-height: 27px;
 color: inherit;
 }
+/* FASOTOK — BOUTON + STYLE TIKTOK */
+
+.bottom-nav .plus-container {
+display: flex;
+flex: 1;
+justify-content: center;
+align-items: center;
+height: 100%;
+}
+
+.bottom-nav .tiktok-plus-btn {
+position: relative;
+isolation: isolate;
+display: flex;
+justify-content: center;
+align-items: center;
+width: 44px;
+height: 28px;
+padding: 0;
+border: none;
+border-radius: 7px;
+background: #fff;
+color: #000;
+font-size: 27px;
+font-weight: 400;
+line-height: 1;
+z-index: 1;
+}
+
+.bottom-nav .tiktok-plus-btn::before {
+content: "";
+position: absolute;
+top: 0;
+left: -4px;
+width: 44px;
+height: 28px;
+border-radius: 7px;
+background: #25f4ee;
+z-index: -1;
+}
+
+.bottom-nav .tiktok-plus-btn::after {
+content: "";
+position: absolute;
+top: 0;
+right: -4px;
+width: 44px;
+height: 28px;
+border-radius: 7px;
+background: #fe2c55;
+z-index: -2;
+}
+
+.bottom-nav .tiktok-plus-btn:active {
+transform: scale(0.94);
+}
+/* FASOTOK — CENTRER LA TOUCHE + */
+
+.bottom-nav {
+display: flex;
+flex-direction: row;
+justify-content: space-around;
+align-items: center;
+}
+
+.bottom-nav > .nav-item {
+flex: 1;
+min-width: 0;
+}
+
+.bottom-nav > .plus-container {
+flex: 1;
+display: flex;
+justify-content: center;
+align-items: center;
+position: relative;
+left: 0;
+margin: 0;
+padding: 0;
+}
+
+.bottom-nav .tiktok-plus-btn {
+margin: 0 auto;
+}
+}
+/* FASOTOK — PLACEMENT EXACT DU BOUTON + */
+.bottom-nav {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  justify-items: center;
+  align-items: center;
+}
+
+.bottom-nav > .nav-item {
+  width: 100% !important;
+  min-width: 0 !important;
+  flex: none !important;
+  margin: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 .bottom-nav > .plus-container {
@@ -1164,10 +1328,76 @@ color: #000 !important;
 font-size: 25px !important;
 font-weight: bold !important;
 }
+/* FASOTOK — AFFICHER LES ICÔNES DU BAS */
+.bottom-nav .nav-item > span:not(.tiktok-plus-btn):not(.nav-icon) {
+  display: none !important;
+}
+
+
+.bottom-nav .nav-item {
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+/* CORRECTION VISIBILITÉ DES 4 BOUTONS */
+.bottom-nav .nav-item:not(.plus-container) {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: white !important;
+  min-width: 0 !important;
+  flex: 1 !important;
+}
+
+.bottom-nav .nav-item .nav-icon {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  font-size: 24px !important;
+}
+
+.bottom-nav {
+  display: flex !important;
+  justify-content: space-around !important;
+  align-items: center !important;
+  transform: scale(0.95);
+}
+
+/* CORRECTION FINALE DE LA NAVIGATION FASOTOK */
+.bottom-nav {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: space-around !important;
+  align-items: center !important;
+}
+
+.bottom-nav .nav-item {
+  display: flex !important;
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
   visibility: visible !important;
   opacity: 1 !important;
 }
 
+.bottom-nav .nav-item > .nav-icon {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  justify-content: center !important;
+  align-items: center !important;
+  font-size: 24px !important;
+  line-height: 1 !important;
+}
+
+.bottom-nav .nav-item > span:not(.tiktok-plus-btn):not(.nav-icon) {
+  display: none !important;
+}
+
+.bottom-nav .plus-container .tiktok-plus-btn {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
  /* REAFFICHER LES 4 BOUTONS DU BAS */
 .bottom-nav .nav-item > .nav-icon {
   display: inline-flex !important;
@@ -1206,4 +1436,25 @@ font-weight: bold !important;
   height: 100% !important;
   align-items: center !important;
   justify-content: center !important;
+}
+
+/* FASOTOK — COMPTEURS J'AIME, COMMENTAIRES ET FAVORIS */
+.action-count {
+  display: block;
+  color: white;
+  font-size: 13px;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 3px;
+  text-shadow: 0 1px 4px black;
+}
+/* FASOTOK — Boutons fixes pendant le défilement */
+#fixed-video-sidebar {
+  position: fixed !important;
+  right: 10px !important;
+  top: 50% !important;
+  bottom: auto !important;
+  transform: translateY(-50%) !important;
+  z-index: 9999 !important;
+  pointer-events: auto !important;
 }

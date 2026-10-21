@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+< lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -376,7 +376,7 @@
 <input
   type="file"
   id="fasotok-selecteur"
-  accept="video/*"
+accept="image/*,video/*"
   hidden
 >
   <button type="button" class="nav-item active" data-page="home" aria-label="Accueil">
@@ -493,8 +493,19 @@
 </div>
 
 <!-- SCRIPTS : garder le moteur principal après Supabase -->
-<script src="script2.js"></script>
-<script src="traduction.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<script>
+  
+</script>
+
+<script>
+  window.addEventListener("error", function(e) {
+    alert("Erreur JavaScript : " + e.message);
+  });
+</script>
+
+<script src="script2.js"></script>
 </body>
 </html>
+

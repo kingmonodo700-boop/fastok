@@ -4,8 +4,8 @@
    Navigation, assistant, langue, authentification,
    publication et chargement des vidéos
    ========================================================= */
-
 // --- 1. CONFIGURATION SUPABASE ---
+
 const SUPABASE_URL = "https://vloshskfgaqcdxaktdvy.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_I5sAXEonuAJ2TvRNuvUNPA_o5wIONOm";
 
@@ -28,7 +28,7 @@ if (!window.supabase) {
 const supabaseClient = window.supabaseClient;
 
 
-// --- 2. NAVIGATION, ASSISTANT ET PARAMÈTRES ---
+ // --- 2. NAVIGATION, ASSISTANT ET PARAMÈTRES ---
 document.addEventListener("DOMContentLoaded", () => {
   const navButtons = document.querySelectorAll(".nav-item[data-page]");
   const pageSections = document.querySelectorAll(".page-section");
@@ -38,29 +38,42 @@ document.addEventListener("DOMContentLoaded", () => {
   function switchPage(pageId) {
     pageSections.forEach(section => {
       section.hidden = true;
-    
-  // --- OUVRIR LES PAGES DE CONFIDENTIALITÉ ---
-  const boutonConfidentialite =
-    document.getElementById("ouvrir-confidentialite");
-
-  const boutonPolitique =
-    document.getElementById("ouvrir-politique-confidentialite");
-
-  const boutonReferences =
-    document.getElementById("ouvrir-references-legales");
-
-  function ouvrirPageFasoTok(idPage) {
-    document.querySelectorAll(".page-section").forEach(page => {
-      page.hidden = true;
+      section.style.display = "";
     });
 
-    const page = document.getElementById(idPage);
+    const targetPage = document.getElementById(`${pageId}-page`);
 
-    if (page) {
-      page.hidden = false;
-      page.style.display = "block";
+    if (targetPage) {
+      targetPage.hidden = false;
+      targetPage.style.display = "block";
+    } else {
+      console.error("FasoTok : page introuvable :", pageId + "-page");
     }
+
+    navButtons.forEach(btn => {
+      btn.classList.toggle(
+        "active-nav",
+        btn.getAttribute("data-page") === pageId
+      );
+    });
   }
+
+  navButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      switchPage(button.getAttribute("data-page"));
+    });
+  });
+
+  function ouvrirPageFasoTok(idPage) {
+    switchPage(idPage.replace("-page", ""));
+  }
+
+  const boutonConfidentialite =
+    document.getElementById("ouvrir-confidentialite");
+  const boutonPolitique =
+    document.getElementById("ouvrir-politique-confidentialite");
+  const boutonReferences =
+    document.getElementById("ouvrir-references-legales");
 
   if (boutonConfidentialite) {
     boutonConfidentialite.addEventListener("click", () => {
@@ -80,43 +93,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-    });
-
-    const targetPage = document.getElementById(`${pageId}-page`);
-
-    if (targetPage) {
-      targetPage.hidden = false;
-    }
-
-    navButtons.forEach(btn => {
-      btn.classList.toggle(
-        "active-nav",
-        btn.getAttribute("data-page") === pageId
-      );
-    });
-  }
-
-  navButtons.forEach(button => {
-    button.addEventListener("click", () => {
-      switchPage(button.getAttribute("data-page"));
-    });
-  });
-
   if (openSettingsBtn) {
-  openSettingsBtn.addEventListener("click", () => {
-    document.querySelectorAll(".page-section").forEach(page => {
-      page.hidden = true;
+    openSettingsBtn.addEventListener("click", () => {
+      switchPage("parametres");
     });
-
-    const pageParametres = document.getElementById("parametres-page");
-
-    if (pageParametres) {
-      pageParametres.hidden = false;
-      pageParametres.style.display = "block";
-    } else {
-      alert("FasoTok : page Paramètres introuvable.");
-    }
-  });
   }
 
   if (backHomeBtn) {
@@ -124,6 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
       switchPage("home");
     });
   }
+
 
   // Assistant IA : simulation conservée
   const assistantForm = document.getElementById("assistant-form");
@@ -279,6 +260,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // CONNEXION : FasoTok
   if (loginForm) {
     loginForm.addEventListener("submit", async event => {
+    
       event.preventDefault();
 
       const username =
@@ -321,7 +303,8 @@ document.addEventListener("DOMContentLoaded", () => {
         afficherUtilisateur(data.user);
 
         console.log("FasoTok : connexion réussie.");
-
+console.log("FasoTok : le gestionnaire de connexion fonctionne.");
+        alert("Le bouton de connexion fonctionne !");
         alert("Bienvenue sur FasoTok 🇧🇫, @" + username + " !");
 
       } catch (error) {
@@ -355,7 +338,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /* --- FASOTOK : BOUTONS SUR CHAQUE VIDÉO --- */
-function ajouterBoutonsVideo(carte, video, username) {
+async function ajouterBoutonsVideo(carte, video, username, videoId) {
  
   // Cœur animé au double-tap sur la vidéo
   let dernierToucher = 0;
@@ -389,23 +372,49 @@ function ajouterBoutonsVideo(carte, video, username) {
     }
   });
 
-  const sidebar = document.getElementById("fixed-video-sidebar");
+  let sidebar = carte.querySelector(".interaction-sidebar");
 
 if (!sidebar) {
-  console.error("FasoTok : emplacement des boutons introuvable");
-  return;
+  sidebar = document.createElement("div");
+  sidebar.className = "interaction-sidebar";
+  carte.appendChild(sidebar);
 }
 
 sidebar.innerHTML = "";
-sidebar.className = "interaction-sidebar";
-    const actions = [
-    { icon: "👤", label: "Profil", action: "profil" },
-    { icon: "❤️", label: "J’aime", action: "like" },
-    { icon: "💬", label: "Commentaires", action: "comment" },
-    { icon: "🔖", label: "Favoris", action: "favoris" },
-    { icon: "↗", label: "Partager", action: "share" }
-  ];
+sidebar.dataset.videoId = String(videoId);
 
+const actions = [
+  { icon: "👤", label: "Profil", action: "profil" },
+  { icon: "❤️", label: "J’aime", action: "like", count: 0 },
+  { icon: "💬", label: "Commentaires", action: "comment", count: 0 },
+  { icon: "🔖", label: "Favoris", action: "favoris", count: 0 },
+  { icon: "↗", label: "Partager", action: "share" }
+];
+
+
+const { count: nombreLikes, error: erreurLikes } =
+  await supabaseClient
+    .from("likes")
+    .select("*", { count: "exact", head: true })
+    .eq("video_id", String(videoId));
+
+const { count: nombreCommentaires, error: erreurCommentaires } =
+  await supabaseClient
+    .from("comments")
+    .select("*", { count: "exact", head: true })
+    .eq("video_id", String(videoId));
+console.log("ID vidéo :", videoId);
+console.log("Nombre de J’aime :", nombreLikes, erreurLikes);
+console.log("Nombre de commentaires :", nombreCommentaires, erreurCommentaires);
+const { count: nombreFavoris, error: erreurFavoris } =
+  await supabaseClient
+    .from("favorites")
+    .select("*", { count: "exact", head: true })
+    .eq("video_id", String(videoId));
+
+if (erreurLikes) console.error("Erreur J’aime :", erreurLikes);
+if (erreurCommentaires) console.error("Erreur commentaires :", erreurCommentaires);
+if (erreurFavoris) console.error("Erreur favoris :", erreurFavoris);
   actions.forEach(item => {
     const groupe = document.createElement("div");
     groupe.className = "icon-group";
@@ -420,6 +429,16 @@ sidebar.className = "interaction-sidebar";
     label.className = "sidebar-label";
     label.textContent = item.label;
 
+const compteur = document.createElement("span");
+compteur.className = "action-count";
+
+if (item.action === "like") {
+  compteur.textContent = nombreLikes ?? 0;
+} else if (item.action === "comment") {
+  compteur.textContent = nombreCommentaires ?? 0;
+} else if (item.action === "favoris") {
+  compteur.textContent = nombreFavoris ?? 0;
+}
     bouton.addEventListener("click", async event => {
       event.stopPropagation();
 
@@ -435,18 +454,116 @@ sidebar.className = "interaction-sidebar";
           element.textContent = "@" + username;
         });
       }
+if (item.action === "like") {
+  console.log("FasoTok : bouton J’aime cliqué");
+  try {
+    const { data: sessionData, error: sessionError } =
+      await supabaseClient.auth.getSession();
 
-      if (item.action === "like") {
-        bouton.textContent =
-          bouton.textContent === "❤️" ? "🤍" : "❤️";
+    if (sessionError) throw sessionError;
+
+    const utilisateur = sessionData.session?.user;
+
+    if (!utilisateur) {
+      alert("Connecte-toi pour aimer une vidéo.");
+      return;
+    }
+
+    if (!videoId) {
+      alert("Identifiant de vidéo introuvable.");
+      return;
+    }
+
+    const { data: likeExistant, error: rechercheErreur } =
+      await supabaseClient
+        .from("likes")
+        .select("id")
+        .eq("user_id", utilisateur.id)
+        .eq("video_id", String(videoId))
+        .maybeSingle();
+
+    if (rechercheErreur) throw rechercheErreur;
+console.log("J’aime déjà enregistré :", likeExistant);
+console.log("J’aime déjà enregistré :", likeExistant);
+    
+if (likeExistant) {
+  const { error } = await supabaseClient
+    .from("likes")
+    .delete()
+    .eq("user_id", utilisateur.id)
+    .eq("video_id", String(videoId));
+
+  if (error) throw error;
+
+  bouton.textContent = "🤍";
+  compteur.textContent = Math.max(
+    0,
+    Number(compteur.textContent || 0) - 1
+  );
+} else {
+  const { error } = await supabaseClient
+    .from("likes")
+    .insert({
+      user_id: utilisateur.id,
+      video_id: String(videoId)
+    });
+
+  if (error) throw error;
+
+  bouton.textContent = "❤️";
+  compteur.textContent =
+    Number(compteur.textContent || 0) + 1;
+}
+
+  } catch (erreur) {
+    console.error("Erreur J’aime :", erreur);
+    alert("Impossible d'enregistrer le J’aime. Vérifie la connexion.");
+  }
+}
+
+if (item.action === "comment") {
+  const commentaire = prompt("Écris ton commentaire :");
+
+  if (commentaire && commentaire.trim()) {
+    try {
+      const { data: sessionData, error: sessionError } =
+        await supabaseClient.auth.getSession();
+
+      if (sessionError) throw sessionError;
+
+      const utilisateur = sessionData.session?.user;
+
+      if (!utilisateur) {
+        alert("Connecte-toi pour commenter.");
+        return;
       }
 
-      if (item.action === "comment") {
-        const commentaire = prompt("Écris ton commentaire :");
-        if (commentaire && commentaire.trim()) {
-          alert("Commentaire saisi : " + commentaire.trim());
-        }
+      if (!videoId) {
+        alert("Identifiant de vidéo introuvable.");
+        return;
       }
+
+      const { error: erreurCommentaire } = await supabaseClient
+        .from("comments")
+        .insert({
+          user_id: utilisateur.id,
+          video_id: String(videoId),
+          content: commentaire.trim()
+        });
+
+      if (erreurCommentaire) throw erreurCommentaire;
+
+      compteur.textContent =
+        Number(compteur.textContent || 0) + 1;
+
+      alert("Commentaire publié !");
+    } catch (erreur) {
+      console.error("Erreur commentaire :", erreur);
+      alert("Impossible d'enregistrer le commentaire : " + erreur.message);
+    }
+  }
+}
+
 
       if (item.action === "share") {
         try {
@@ -471,6 +588,9 @@ sidebar.className = "interaction-sidebar";
     });
 
     groupe.appendChild(bouton);
+if (["like", "comment", "favoris"].includes(item.action)) {
+  groupe.appendChild(compteur);
+}
     groupe.appendChild(label);
     sidebar.appendChild(groupe);
   });
@@ -478,6 +598,7 @@ sidebar.className = "interaction-sidebar";
   if (!sidebar.parentElement) {
   console.warn("FasoTok : boutons en attente de leur emplacement fixe.");
   }
+
      }
 // --- 4. PUBLICATION DE VIDÉOS ---
 document.addEventListener("DOMContentLoaded", () => {
@@ -498,10 +619,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!fichier) return;
 
-    if (!fichier.type.startsWith("video/")) {
-      alert("Choisis un fichier vidéo pour continuer.");
-      selecteur.value = "";
-      return;
+    if (
+  !fichier.type.startsWith("video/") &&
+  !fichier.type.startsWith("image/")
+) {
+  alert("Choisis une photo ou une vidéo.");
+  selecteur.value = "";
+  return;
     }
 
     if (!supabaseClient) {
@@ -571,18 +695,22 @@ document.addEventListener("DOMContentLoaded", () => {
         utilisateur.user_metadata?.username || "Utilisateur";
 
       // ENREGISTRER LES INFORMATIONS DANS LA TABLE videos
-      const { error: insertionError } = await supabaseClient
-        .from("videos")
-        .insert({
-          user_id: utilisateur.id,
-          username: username,
-          video_url: urlVideo,
-          caption: ""
-        });
+      
+const { data: videoInseree, error: insertionError } = await supabaseClient
+  .from("videos")
+  .insert({
+    user_id: utilisateur.id,
+    username: username,
+    video_url: urlVideo,
+    caption: ""
+  })
+  .select("id")
+  .single();
 
       if (insertionError) {
         console.error("Erreur table videos :", insertionError);
 
+        
         // Nettoyage du fichier si l'insertion échoue
         const { error: nettoyageError } = await supabaseClient.storage
           .from("videos")
@@ -653,7 +781,12 @@ pied.className = "video-footer";
 
         carte.appendChild(video);
         carte.appendChild(pied);
-ajouterBoutonsVideo(carte, video, username || "Utilisateur");
+ajouterBoutonsVideo(
+  carte,
+  video,
+  username || "Utilisateur",
+  videoInseree.id
+);
 fil.appendChild(carte);
         video.play().catch(() => {
           console.log("La lecture démarrera après une action.");
@@ -721,6 +854,344 @@ video.addEventListener("click", async (event) => {
   }
 });
       video.autoplay = true;
-      video.muted = false;
-      video.loop = true;
-      video.playsInline = true
+video.loop = true;
+video.playsInline = true;
+video.preload = "auto";
+video.muted = false;
+video.defaultMuted = false;
+video.removeAttribute("muted");
+
+video.setAttribute("autoplay", "");
+video.setAttribute("playsinline", "");
+video.setAttribute("muted", "");
+
+video.play().catch(() => {
+  console.log("FasoTok : lecture en attente de l'autorisation du téléphone.");
+});
+      const pied = document.createElement("div");
+      pied.className = "video-footer";
+
+      const pseudo = document.createElement("h3");
+      pseudo.textContent = "@" + (item.username || "Utilisateur");
+
+      const description = document.createElement("p");
+      description.textContent = item.caption || "";
+
+      
+      pied.appendChild(pseudo);
+      pied.appendChild(description);
+      carte.appendChild(video);
+      carte.appendChild(pied);
+
+      ajouterBoutonsVideo(
+  carte,
+  video,
+  item.username || "Utilisateur",
+  item.id
+);
+
+      fil.appendChild(carte);
+  const observateurVideo = new IntersectionObserver((entrees) => {
+  entrees.forEach(entree => {
+    const videoVisible = entree.target.querySelector("video");
+
+    if (!videoVisible) return;
+
+    if (entree.isIntersecting && entree.intersectionRatio >= 0.6) {
+      document.querySelectorAll("#video-feed video").forEach(autreVideo => {
+        if (autreVideo !== videoVisible) {
+          autreVideo.pause();
+        }
+      });
+
+      videoVisible.play().catch(() => {});
+    } else {
+      videoVisible.pause();
+    }
+  });
+}, {
+  threshold: [0, 0.6, 1]
+});
+
+observateurVideo.observe(carte);
+    });
+
+    console.log("FasoTok : vidéos rechargées :", videos.length);
+  } catch (error) {
+    console.error("Erreur de chargement des vidéos :", error);
+  }
+});
+
+/* --- FASOTOK : CHARGEMENT DU PORTEFEUILLE --- */
+document.addEventListener("DOMContentLoaded", async () => {
+  const soldeElement = document.getElementById("portefeuille-solde");
+  const gainsElement = document.getElementById("portefeuille-gains");
+
+  if (!soldeElement || !gainsElement) return;
+
+  if (!window.supabaseClient) {
+    soldeElement.textContent = "Indisponible";
+    gainsElement.textContent = "Indisponible";
+    return;
+  }
+
+  try {
+    const { data: sessionData, error: sessionError } =
+      await window.supabaseClient.auth.getSession();
+
+    if (sessionError) throw sessionError;
+
+    const utilisateur = sessionData.session?.user;
+
+    if (!utilisateur) {
+      soldeElement.textContent = "Connecte-toi";
+      gainsElement.textContent = "Connecte-toi";
+      return;
+    }
+
+    const { data, error } = await window.supabaseClient
+      .from("portefeuilles")
+      .select("solde_fcfa, gains_total_fcfa")
+      .eq("id", utilisateur.id)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    if (!data) {
+      soldeElement.textContent = "Portefeuille non créé";
+      gainsElement.textContent = "Portefeuille non créé";
+      return;
+    }
+
+    soldeElement.textContent =
+      Number(data.solde_fcfa).toLocaleString("fr-FR") + " FCFA";
+
+    gainsElement.textContent =
+      Number(data.gains_total_fcfa).toLocaleString("fr-FR") + " FCFA";
+
+    console.log("FasoTok : portefeuille chargé.");
+  } catch (error) {
+    console.error("Erreur de chargement du portefeuille :", error);
+    soldeElement.textContent = "Erreur de chargement";
+    gainsElement.textContent = "Erreur de chargement";
+  }
+});
+
+/* --- FASOTOK : CHARGEMENT DE L'HISTORIQUE --- */
+document.addEventListener("DOMContentLoaded", async () => {
+  const liste = document.getElementById("historique-liste");
+  const message = document.getElementById("historique-message");
+
+  if (!liste || !message || !window.supabaseClient) return;
+
+  try {
+    const { data: sessionData, error: sessionError } =
+      await window.supabaseClient.auth.getSession();
+
+    if (sessionError) throw sessionError;
+
+    const utilisateur = sessionData.session?.user;
+
+    if (!utilisateur) {
+      message.textContent = "Connecte-toi pour voir ton historique.";
+      return;
+    }
+
+    const { data, error } = await window.supabaseClient
+      .from("historique_portefeuille")
+      .select("type_operation, montant_fcfa, description, statut, created_at")
+      .eq("utilisateur_id", utilisateur.id)
+      .order("created_at", { ascending: false })
+      .limit(20);
+
+    if (error) throw error;
+
+    liste.replaceChildren();
+
+    if (!data || data.length === 0) {
+      message.textContent = "Aucune opération pour le moment.";
+      return;
+    }
+
+    message.textContent = "Dernières opérations :";
+
+    data.forEach(operation => {
+      const element = document.createElement("li");
+      const date = new Date(operation.created_at).toLocaleDateString("fr-FR");
+
+      element.textContent =
+        `${operation.type_operation} — ` +
+        `${Number(operation.montant_fcfa).toLocaleString("fr-FR")} FCFA — ` +
+        `${operation.statut} — ${date}` +
+        (operation.description ? ` — ${operation.description}` : "");
+
+      liste.appendChild(element);
+    });
+  } catch (error) {
+    console.error("Erreur historique FasoTok :", error);
+    message.textContent = "Impossible de charger l'historique.";
+  }
+});
+/* --- FASOTOK : PROFIL ET CONFIDENTIALITÉ --- */
+document.addEventListener("DOMContentLoaded", () => {
+const afficher = (id) => {
+document.querySelectorAll(".page-section").forEach(page => {
+page.hidden = true;
+});
+const page = document.getElementById(id);
+if (page) page.hidden = false;
+};
+
+const boutonModifier = document.getElementById("modifier-profil-btn");
+const boutonConfidentialite = [...document.querySelectorAll("#parametres-page p")]
+.find(p => p.textContent.includes("Confidentialité et préférences"));
+
+if (boutonModifier) {
+boutonModifier.addEventListener("click", () => {
+const pseudo = localStorage.getItem("fasotok_pseudo") || "";
+const bio = localStorage.getItem("fasotok_bio") || "";
+
+  document.getElementById("nouveau-pseudo").value = pseudo;
+  document.getElementById("nouvelle-bio").value = bio;
+  afficher("modifier-profil-page");
+});
+
+}
+
+if (boutonConfidentialite) {
+boutonConfidentialite.style.cursor = "pointer";
+boutonConfidentialite.addEventListener("click", () => {
+document.getElementById("profil-prive").checked =
+localStorage.getItem("fasotok_profil_prive") === "true";
+afficher("confidentialite-page");
+});
+}
+
+document.getElementById("retour-parametres-profil")
+?.addEventListener("click", () => afficher("parametres-page"));
+
+document.getElementById("retour-parametres-confidentialite")
+?.addEventListener("click", () => afficher("parametres-page"));
+
+document.getElementById("enregistrer-profil")
+?.addEventListener("click", () => {
+const pseudo = document.getElementById("nouveau-pseudo").value.trim();
+const bio = document.getElementById("nouvelle-bio").value.trim();
+
+  if (!pseudo) {
+    alert("Entre un pseudo avant d’enregistrer.");
+    return;
+  }
+
+  localStorage.setItem("fasotok_pseudo", pseudo);
+  localStorage.setItem("fasotok_bio", bio);
+
+  const titre = document.querySelector(".profile-username");
+  const description = document.querySelector(".profile-bio");
+
+  if (titre) titre.textContent = "@" + pseudo;
+  if (description) description.textContent = bio;
+
+  document.getElementById("message-modification-profil").textContent =
+    "Modifications enregistrées sur cet appareil.";
+});
+
+document.getElementById("profil-prive")
+?.addEventListener("change", event => {
+localStorage.setItem("fasotok_profil_prive", event.target.checked);
+});
+});
+/* --- FASOTOK : MÉMORISER LE RÉGLAGE DU SON --- */
+document.addEventListener("DOMContentLoaded", () => {
+  const caseSon = document.getElementById("son-videos-fasotok");
+
+  if (!caseSon) return;
+
+  caseSon.checked = localStorage.getItem("fasotok_son_videos") !== "false";
+
+  caseSon.addEventListener("change", () => {
+    localStorage.setItem("fasotok_son_videos", caseSon.checked);
+
+    document.querySelectorAll("#video-feed video").forEach(video => {
+      video.muted = !caseSon.checked;
+    });
+  });
+});
+
+/* --- FASOTOK : MÉMORISER LES NOTIFICATIONS --- */
+document.addEventListener("DOMContentLoaded", () => {
+  const caseNotifications = document.getElementById("notifications-fasotok");
+
+  if (!caseNotifications) return;
+
+  caseNotifications.checked =
+    localStorage.getItem("fasotok_notifications") === "true";
+
+  caseNotifications.addEventListener("change", () => {
+    localStorage.setItem(
+      "fasotok_notifications",
+      caseNotifications.checked
+    );
+  });
+});
+
+/* FASOTOK : OUVRIR LA PAGE PUBLICITÉ */
+document.addEventListener("DOMContentLoaded", function () {
+  const boutonPublicite = document.querySelector(
+    '.bottom-nav [data-page="publicite"]'
+  );
+
+  const pagePublicite = document.getElementById("publicite-page");
+
+  if (!boutonPublicite || !pagePublicite) {
+    console.error("FasoTok : bouton ou page Publicité introuvable.");
+    return;
+  }
+
+  boutonPublicite.addEventListener("click", function () {
+    document.querySelectorAll(".page-section").forEach(function (page) {
+      page.hidden = true;
+    });
+
+    pagePublicite.hidden = false;
+
+    document.querySelectorAll(".bottom-nav .nav-item").forEach(function (bouton) {
+      bouton.classList.remove("active");
+    });
+
+    boutonPublicite.classList.add("active");
+  });
+});
+
+/* FASOTOK : FORMULAIRE DE DEMANDE DE PUBLICITÉ */
+document.addEventListener("DOMContentLoaded", function () {
+  const formulaire = document.getElementById("demande-publicite-form");
+
+  if (!formulaire) {
+    console.error("FasoTok : formulaire de publicité introuvable.");
+    return;
+  }
+
+  formulaire.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const nom = document.getElementById("nom-commerce").value.trim();
+    const offre = document.getElementById("type-publicite").value;
+    const contact = document.getElementById("contact-commerce").value.trim();
+
+    if (!nom || !offre || !contact) {
+      alert("Merci de remplir tous les champs.");
+      return;
+    }
+
+    const message =
+      "Bonjour FasoTok 🇧🇫 ! Je souhaite demander une publicité.\n\n" +
+      "Nom du commerce : " + nom + "\n" +
+      "Type de publicité : " + offre + "\n" +
+      "Numéro de contact : " + contact;
+
+    const url = "https://wa.me/?text=" + encodeURIComponent(message);
+
+    window.open(url, "_blank");
+  });
+});

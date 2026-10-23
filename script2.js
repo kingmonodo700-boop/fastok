@@ -1306,3 +1306,192 @@ document.addEventListener("DOMContentLoaded", function () {
     window.open(url, "_blank");
   });
 });
+/* FASOTOK 🇧🇫 — COMMENTAIRES STYLE TIKTOK */
+async function afficherCommentaires(videoId) {
+  if (!supabaseClient) {
+    alert("Connexion au serveur impossible.");
+    return;
+  }
+
+  // Éviter d'ouvrir plusieurs fenêtres
+  const ancien = document.getElementById("fasotok-commentaires");
+  if (ancien) ancien.remove();
+
+  // Fenêtre des commentaires
+  const panneau = document.createElement("div");
+  panneau.id = "fasotok-commentaires";
+  panneau.style.cssText = `
+    position:fixed;
+    inset: auto 0 0 0;
+    height:75vh;
+    z-index:99999;
+    background:#181818;
+    color:white;
+    border-radius:18px 18px 0 0;
+    padding:16px;
+    box-sizing:border-box;
+    display:flex;
+    flex-direction:column;
+    font-family:Arial,sans-serif;
+    box-shadow:0 -4px 20px #0008;
+  `;
+
+  const entete = document.createElement("div");
+  entete.style.cssText =
+    "display:flex;justify-content:space-between;" +
+    "align-items:center;border-bottom:1px solid #444;";
+
+  const titre = document.createElement("h3");
+  titre.textContent = "Commentaires";
+  titre.style.margin = "8px 0 14px";
+
+  const fermer = document.createElement("button");
+  fermer.textContent = "✕";
+  fermer.style.cssText =
+    "background:#333;color:white;border:0;" +
+    "border-radius:50%;padding:9px;font-size:16px;";
+  fermer.onclick = () => panneau.remove();
+
+  entete.append(titre, fermer);
+
+  const liste = document.createElement("div");
+liste.style.minHeight = "150px";
+liste.style.display = "block";
+  liste.style.cssText =
+    "flex:1;overflow-y:auto;padding:8px 0;";
+
+  const formulaire = document.createElement("form");
+  formulaire.style.cssText =
+    "display:flex;gap:8px;padding-top:12px;" +
+    "border-top:1px solid #444;";
+
+  const champ = document.createElement("input");
+  champ.type = "text";
+  champ.placeholder = "Ajouter un commentaire...";
+  champ.maxLength = 1000;
+  champ.required = true;
+  champ.style.cssText =
+    "flex:1;min-width:0;padding:12px;" +
+    "border-radius:22px;border:1px solid #555;" +
+    "background:#292929;color:white;font-size:15px;";
+
+  const envoyer = document.createElement("button");
+  envoyer.type = "submit";
+  envoyer.textContent = "Envoyer";
+  envoyer.style.cssText =
+    "background:#fe2c55;color:white;border:0;" +
+    "border-radius:22px;padding:10px 14px;";
+
+  formulaire.append(champ, envoyer);
+  panneau.append(entete, liste, formulaire);
+  document.body.appendChild(panneau);
+
+  // Charger et afficher les commentaires
+  async function chargerCommentaires() {
+    liste.textContent = "Chargement...";
+console.log("Chargement des commentaires pour la vidéo :", videoId);
+    const { data: commentaires, error } = await supabaseClient
+      .from("comments")
+      .select("id, user_id, username, content")
+      .eq("video_id", String(videoId))
+      .order("id", { ascending: false });
+
+    if (error) {
+      console.error("Erreur commentaires :", error);
+      liste.textContent = "Impossible de charger les commentaires.";
+      return;
+    }
+
+    liste.replaceChildren();
+
+    if (!commentaires || commentaires.length === 0) {
+      const vide = document.createElement("p");
+      vide.textContent = "Aucun commentaire. Sois le premier !";
+      vide.style.color = "#bbb";
+      liste.appendChild(vide);
+      return;
+    }
+
+    commentaires.forEach(commentaire => {
+      const ligne = document.createElement("div");
+      ligne.style.cssText =
+        "display:flex;gap:10px;padding:12px 0;" +
+        "border-bottom:1px solid #333;";
+
+      const avatar = document.createElement("div");
+      avatar.textContent = "👤";
+      avatar.style.cssText =
+        "background:#333;border-radius:50%;width:38px;" +
+        "height:38px;display:flex;align-items:center;" +
+        "justify-content:center;flex-shrink:0;";
+
+      const contenu = document.createElement("div");
+      contenu.style.cssText = "flex:1;min-width:0;";
+
+      const auteur = document.createElement("strong");
+      auteur.textContent = commentaire.username || "Utilisateur";
+      auteur.style.cssText = "font-size:14px;color:#ccc;";
+
+      const texte = document.createElement("p");
+      texte.textContent = commentaire.content || "";
+      texte.style.cssText =
+        "margin:6px 0 0;white-space:pre-wrap;overflow-wrap:anywhere;";
+
+      contenu.append(auteur, texte);
+      ligne.append(avatar, contenu);
+      liste.appendChild(ligne);
+    });
+  }
+
+  await chargerCommentaires();
+liste.style.minHeight = "150px";
+  // Envoyer un commentaire dans Supabase
+  formulaire.addEventListener("submit", async evenement => {
+    evenement.preventDefault();
+
+    const texte = champ.value.trim();
+    if (!texte) return;
+
+    envoyer.disabled = true;
+    envoyer.textContent = "Envoi...";
+
+    try {
+      const { data: sessionData, error: sessionError } =
+        await supabaseClient.auth.getSession();
+
+      if (sessionError) throw sessionError;
+
+      const utilisateur = sessionData.session?.user;
+
+      if (!utilisateur) {
+        alert("Connecte-toi pour commenter.");
+        return;
+      }
+
+      const pseudo =
+        utilisateur.user_metadata?.username || "Utilisateur";
+
+      const { error } = await supabaseClient
+        .from("comments")
+        .insert({
+          video_id: String(videoId),
+          user_id: utilisateur.id,
+          username: pseudo,
+          content: texte
+        });
+
+      if (error) throw error;
+
+      champ.value = "";
+      await chargerCommentaires();
+      liste.scrollTop = 0;
+
+    } catch (erreur) {
+      console.error("Erreur envoi commentaire :", erreur);
+      alert("Impossible d'envoyer le commentaire : " + erreur.message);
+    } finally {
+      envoyer.disabled = false;
+      envoyer.textContent = "Envoyer";
+    }
+  });
+}

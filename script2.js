@@ -715,3 +715,65 @@ if (["like", "comment", "favoris"].includes(item.action)) {
   }
 
      }
+// --- 4. PUBLICATION DE VIDÉOS ---
+document.addEventListener("DOMContentLoaded", () => {
+ const boutonPublier = document.getElementById("publish-nav-btn");
+  const selecteur = document.getElementById("fasotok-selecteur");
+
+  if (!boutonPublier || !selecteur) {
+    console.error("FasoTok : bouton Publier ou sélecteur introuvable.");
+    return;
+  }
+
+  boutonPublier.addEventListener("click", () => {
+    selecteur.click();
+  });
+
+  selecteur.addEventListener("change", async () => {
+    const fichier = selecteur.files?.[0];
+
+    if (!fichier) return;
+
+    if (
+  !fichier.type.startsWith("video/") &&
+  !fichier.type.startsWith("image/")
+) {
+  alert("Choisis une photo ou une vidéo.");
+  selecteur.value = "";
+  return;
+    }
+
+    if (!supabaseClient) {
+      alert("Supabase n'est pas initialisé.");
+      return;
+    }
+
+    let cheminFichier = null;
+    let fichierEnvoye = false;
+
+    try {
+      boutonPublier.disabled = true;
+      boutonPublier.textContent = "Publication en cours...";
+
+      // Vérifier la session réelle
+      const { data: sessionData, error: sessionError } =
+        await supabaseClient.auth.getSession();
+
+      if (sessionError) throw sessionError;
+
+      const utilisateur = sessionData.session?.user;
+
+      if (!utilisateur) {
+        throw new Error(
+          "Aucune session Supabase active. Connecte-toi avant de publier."
+        );
+      }
+
+      console.log("Publication par l'utilisateur :", utilisateur.id);
+     // Nom de fichier unique dans le dossier de l'utilisateur
+      const extension = fichier.name.includes(".")
+        ? fichier.name.split(".").pop().toLowerCase()
+        : "mp4";
+
+      cheminFichier =
+        utilisateur.id + "/" + Date.now() + "." + extension;

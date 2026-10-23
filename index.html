@@ -73,26 +73,69 @@
     <section id="profile-page" class="page-section" hidden>
       <header class="profile-header">
         <h2 id="profil-titre">Mon profil</h2>
-        <button
-          id="open-settings-btn"
-          type="button"
-          aria-label="Ouvrir les paramètres"
-        >⚙️</button>
       </header>
 
       <div class="profile-info-container">
-        <div class="profile-avatar">👤</div>
-        <h3 class="profile-username">@FasoTok</h3>
-        <p class="profile-bio">Bienvenue sur mon profil.</p>
+        
+<div class="profile-avatar">👤</div>
 
-        <div class="profile-stats">
-          <span>Vidéos</span>
-          <span>Abonnés</span>
-          <span>Abonnements</span>
-        </div>
+<div class="profile-identity">
+  <h3 class="profile-username">@FasoTok</h3>
+  <button
+    type="button"
+    id="profile-menu-btn"
+    aria-label="Ouvrir le menu du profil"
+  >⋮</button>
+</div>
+
+<div id="profile-menu" hidden>
+  <button type="button" id="menu-settings-btn">⚙️ Paramètres</button>
+  <button type="button" id="menu-wallet-btn">👛 Portefeuille</button>
+  <button type="button" id="menu-assistant-btn">🤖 Assistant IA</button>
+</div>
+
+<p class="profile-bio">Bienvenue sur mon profil.</p>
+
+<div class="profile-stats">
+      <button type="button" class="profile-stat" id="stat-videos" data-profile-tab="videos">
+        <strong id="profil-nombre-videos">0</strong>
+        <span>Vidéos</span>
+      </button>
+
+      <button type="button" class="profile-stat" id="stat-followers" data-profile-tab="followers">
+        <strong id="profil-nombre-followers">0</strong>
+        <span>Abonnés</span>
+      </button>
+
+      <button type="button" class="profile-stat" id="stat-following" data-profile-tab="following">
+        <strong id="profil-nombre-following">0</strong>
+        <span>Abonnements</span>
+      </button>
+    </div>
+
+    <div class="profile-tabs" role="tablist" aria-label="Contenu du profil">
+      <button type="button" class="profile-tab active" data-profile-tab="videos">🎬 Vidéos</button>
+      <button type="button" class="profile-tab" data-profile-tab="favorites">🔖 Favoris</button>
+      <button type="button" class="profile-tab" data-profile-tab="likes">❤️ J’aime</button>
+    </div>
+
+    <div id="profile-content" aria-live="polite">
+      <p>Les vidéos de ce profil s’afficheront ici.</p>
+    </div>
+
+    <div id="profile-followers-content" hidden>
+      <h3>Mes abonnés</h3>
+      <div id="profile-followers-list"></div>
+    </div>
+
+    <div id="profile-following-content" hidden>
+      <h3>Mes abonnements</h3>
+      <div id="profile-following-list"></div>
+    </div>
+        
       </div>
 
-      <div id="portefeuille-section">
+      <div id="portefeuille-section" hidden>
         <h3>Mon portefeuille</h3>
         <p>Solde : <span id="portefeuille-solde">0</span></p>
         <p>Gains : <span id="portefeuille-gains">0</span></p>
@@ -104,56 +147,153 @@
 
     <!-- PARAMÈTRES -->
     <section id="parametres-page" class="page-section" hidden>
-      <button
-        id="back-home-btn-settings"
-        type="button"
-        onclick="document.querySelectorAll('.page-section').forEach(p=>p.hidden=true);document.getElementById('profile-page').hidden=false;"
-      >← Retour au profil</button>
+      
+<button
+  id="back-home-btn-settings"
+  class="langue-retour"
+  type="button"
+  onclick="document.querySelectorAll('.page-section').forEach(p=>p.hidden=true);document.getElementById('modifier-profil-page').hidden=false;">
+>← Retour au profil</button>
 
       <h2>Paramètres</h2>
 
-      <button id="modifier-profil-btn" type="button">
-        Modifier mon profil
-      </button>
+<div class="settings-intro">
+  <p>Personnalise ton expérience FasoTok 🇧🇫</p>
+</div>
 
-      <p>Confidentialité et préférences</p>
+<div class="settings-menu-pro">
 
-      <label>
-        <input id="notifications-fasotok" type="checkbox">
-        Activer les notifications
-      </label>
+  <button type="button" class="settings-menu-item"
+    onclick="document.querySelectorAll('.page-section').forEach(p=>p.hidden=true);document.getElementById('modifier-profil-page').hidden=false;"
+    <span class="settings-menu-icon">👤</span>
+    <span class="settings-menu-text">
+      <strong>Mon compte</strong>
+      <small>Mon pseudo et ma biographie</small>
+    </span>
+    <span class="settings-arrow">›</span>
+  </button>
 
+  <button type="button" class="settings-menu-item"
+    onclick="document.getElementById('confidentialite-page').hidden=false;document.getElementById('parametres-page').hidden=true;">
+    <span class="settings-menu-icon">🔒</span>
+    <span class="settings-menu-text">
+      <strong>Confidentialité et sécurité</strong>
+      <small>Gérer la confidentialité</small>
+    </span>
+    <span class="settings-arrow">›</span>
+  </button>
+
+  <button type="button" class="settings-menu-item"
+    onclick="alert('Les préférences de notifications seront bientôt disponibles.');"
+    <span class="settings-menu-icon">🔔</span>
+    <span class="settings-menu-text">
+      <strong>Notifications</strong>
+      <small>Gérer les préférences</small>
+    </span>
+    <span class="settings-arrow">›</span>
+  </button>
+
+  <button type="button" class="settings-menu-item"
+    onclick="alert('Les préférences de lecture seront bientôt disponibles.');"
+    <span class="settings-menu-icon">🎬</span>
+    <span class="settings-menu-text">
+      <strong>Vidéos et lecture</strong>
+      <small>Son et préférences de lecture</small>
+    </span>
+    <span class="settings-arrow">›</span>
+  </button>
+
+  <button type="button" class="settings-menu-item"
+    onclick="document.querySelectorAll('.page-section').forEach(p=>p.hidden=true);document.getElementById('langue-page').hidden=false;"
+    <span class="settings-menu-icon">🌍</span>
+    <span class="settings-menu-text">
+      <strong>Langue</strong>
+      <small>Choisir la langue de l’application</small>
+    </span>
+    <span class="settings-arrow">›</span>
+  </button>
+<button type="button" class="settings-menu-item"
+  onclick="document.querySelectorAll('.page-section').forEach(p=>p.hidden=true);document.getElementById('assistant-page').hidden=false;">
+    <span class="settings-menu-icon">🤖</span>
+    <span class="settings-menu-text">
+      
+<!-- APPARENCE -->
+<button type="button" class="settings-menu-item"
+  onclick="alert('Les options d’apparence seront bientôt disponibles.');">
+  <span class="settings-menu-icon" style="background:linear-gradient(135deg,#ffb000,#ff7900);">🎨</span>
+  <span class="settings-menu-text">
+    <strong>Apparence</strong>
+    <small>Mode sombre, thème et couleurs</small>
+  </span>
+  <span class="settings-arrow">›</span>
+</button>
+
+<!-- AIDE ET SUPPORT -->
+<button type="button" class="settings-menu-item"
+  onclick="alert('Le centre d’aide FasoTok sera bientôt disponible.');">
+  <span class="settings-menu-icon" style="background:linear-gradient(135deg,#fe2c55,#d4148e);">❔</span>
+  <span class="settings-menu-text">
+    <strong>Aide et support</strong>
+    <small>Obtenir de l’aide et des réponses</small>
+  </span>
+  <span class="settings-arrow">›</span>
+</button>
+      <strong>Assistant FasoTok</strong>
+      <small>Obtenir de l’aide avec l’IA</small>
+    </span>
+    <span class="settings-arrow">›</span>
+  </button>
+</div>
+
+      <>
       <br>
 
       <label>
         <input id="son-videos-fasotok" type="checkbox" checked>
         Son des vidéos
       </label>
-
-      <h3>Langue de l’application</h3>
-      <select id="fasotok-langue">
-        <option value="fr">Français</option>
-        <option value="en">English</option>
-        <option value="mos">Mooré</option>
-        <option value="dyu">Dioula</option>
-        <option value="es">Español</option>
-        <option value="pt">Português</option>
-        <option value="de">Deutsch</option>
-        <option value="it">Italiano</option>
-        <option value="ar">العربية</option>
-        <option value="zh">中文</option>
-        <option value="hi">हिन्दी</option>
-        <option value="ru">Русский</option>
-      </select>
-
-      <p id="langue-message"></p>
-
+      
       <button id="deconnexion-fasotok" type="button">
         Se déconnecter
       </button>
     </section>
 
+</button>
     <!-- MODIFICATION DU PROFIL -->
+    
+<!-- PAGE DE CHOIX DE LANGUE -->
+<section id="langue-page" class="page-section" hidden>
+  
+<button type="button" class="langue-retour"
+  onclick="document.querySelectorAll('.page-section').forEach(p=>p.hidden=true);document.getElementById('parametres-page').hidden=false;">
+  <span>←</span> Retour
+</button>
+  <h2>🌍 Langue de FasoTok</h2>
+  <p>Choisis la langue de ton application.</p>
+
+  <button type="button" class="settings-menu-item" onclick="choisirLangueFasoTok('fr','Français')">
+    🇧🇫 Français
+  </button>
+
+  <button type="button" class="settings-menu-item" onclick="choisirLangueFasoTok('mos','Mooré')">
+    🗣️ Mooré
+  </button>
+
+  <button type="button" class="settings-menu-item" onclick="choisirLangueFasoTok('dyu','Dioula')">
+    🗣️ Dioula
+  </button>
+
+  <button type="button" class="settings-menu-item" onclick="choisirLangueFasoTok('en','English')">
+    🇬🇧 English
+  </button>
+
+  <button type="button" class="settings-menu-item" onclick="choisirLangueFasoTok('es','Español')">
+    🇪🇸 Español
+  </button>
+
+  <p id="langue-selection-message">Langue actuelle : Français</p>
+</section>
+
     <section id="modifier-profil-page" class="page-section" hidden>
       <button type="button" id="retour-parametres-profil">
         ← Retour aux paramètres
@@ -246,7 +386,7 @@
     <section id="references-legales-page" class="page-section" hidden>
       <button
         type="button"
-        onclick="document.querySelectorAll('.page-section').forEach(p=>p.hidden=true);document.getElementById('parametres-page').hidden=false;"
+        onclick="document.querySelectorAll('.page-section').forEach(p=>p.hidden=true);document.getElementById('assistant-page').hidden=false;"
       >← Retour aux paramètres</button>
 
       <h2>Références légales</h2>
@@ -452,7 +592,7 @@ accept="image/*,video/*"
             id="register-username"
             type="text"
             placeholder="Choisis un pseudo"
-            required
+             required
           >
         </div>
 
@@ -491,21 +631,68 @@ accept="image/*,video/*"
   </div>
 
 </div>
-
-<!-- SCRIPTS : garder le moteur principal après Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
-  
-</script>
+(function () {
+  const menuBtn = document.getElementById("profile-menu-btn");
+  const menu = document.getElementById("profile-menu");
 
-<script>
-  window.addEventListener("error", function(e) {
-    alert("Erreur JavaScript : " + e.message);
+  if (!menuBtn || !menu) return;
+
+  menuBtn.addEventListener("click", function () {
+    menu.hidden = !menu.hidden;
   });
+
+  document.getElementById("menu-settings-btn")
+    ?.addEventListener("click", function () {
+      menu.hidden = true;
+
+      document.querySelectorAll(".page-section").forEach(page => {
+        page.hidden = true;
+      });
+
+      document.getElementById("parametres-page").hidden = false;
+    });
+
+  document.getElementById("menu-wallet-btn")
+    ?.addEventListener("click", function () {
+      menu.hidden = true;
+
+      document.querySelectorAll(".page-section").forEach(page => {
+        page.hidden = true;
+      });
+
+      const portefeuille = document.getElementById("portefeuille-section");
+
+      if (portefeuille) {
+        portefeuille.hidden = false;
+        document.getElementById("profile-page").hidden = false;
+        portefeuille.scrollIntoView({ behavior: "smooth" });
+      }
+    });
+
+  document.getElementById("menu-assistant-btn")
+    ?.addEventListener("click", function () {
+      menu.hidden = true;
+
+      document.querySelectorAll(".page-section").forEach(page => {
+        page.hidden = true;
+      });
+
+      const assistant = document.getElementById("assistant-page");
+
+      if (assistant) {
+        assistant.hidden = false;
+      } else {
+        alert("La page Assistant FasoTok est introuvable.");
+     console.log("FasoTok : script2.js chargé");
+      }
+    });
+})();
 </script>
 
+</body>
 <script src="script2.js"></script>
 </body>
 </html>
 
+  

@@ -1495,3 +1495,216 @@ liste.style.minHeight = "150px";
     }
   });
 }
+/* --- FASOTOK : AFFICHER LES NOTIFICATIONS --- */
+document.addEventListener("DOMContentLoaded", async () => {
+  const zone = document.createElement("div");
+  zone.id = "fasotok-notification-message";
+  zone.style.cssText = `
+    position: fixed;
+    top: 15px;
+    left: 10px;
+    right: 10px;
+    z-index: 99999;
+    padding: 12px;
+    border-radius: 10px;
+    background: #222;
+    color: white;
+    display: none;
+    text-align: center;
+  `;
+  document.body.appendChild(zone);
+
+  let derniereNotification = null;
+
+  async function verifierNotifications() {
+    try {
+      const { data: sessionData, error: sessionError } =
+        await supabaseClient.auth.getSession();
+
+      if (sessionError || !sessionData.session) return;
+
+      const utilisateur = sessionData.session.user;
+
+      let requete = supabaseClient
+        .from("notifications")
+        .select("id, message, created_at")
+        .eq("user_id", utilisateur.id)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      if (derniereNotification !== null) {
+        requete = requete.gt("id", derniereNotification);
+      }
+
+      const { data, error } = await requete;
+
+      if (error) {
+        console.error("Erreur notifications :", error.message);
+        return;
+      }
+if (!data || data.length === 0) return;
+
+      if (derniereNotification === null) {
+        derniereNotification = data[0].id;
+        return;
+      }
+
+      const notification = data[0];
+      derniereNotification = notification.id;
+
+      zone.textContent = "🔔 " + notification.message;
+      zone.style.display = "block";
+
+      setTimeout(() => {
+        zone.style.display = "none";
+      }, 5000);
+
+    } catch (erreur) {
+      console.error("Vérification notifications :", erreur);
+    }
+  }
+
+  await verifierNotifications();
+  setInterval(verifierNotifications, 10000);
+});
+
+/* --- FASOTOK : CONTENU DU PROFIL --- */
+document.addEventListener("DOMContentLoaded", () => {
+  const client = window.supabaseClient || supabaseClient;
+  const zone = document.getElementById("profile-content");
+  const onglets = document.querySelectorAll(".profile-tab");
+
+  if (!client || !zone) {
+    console.error("FasoTok : profil ou Supabase introuvable.");
+    return;
+  }
+
+  async function chargerProfil(type = "videos") {
+    zone.replaceChildren();
+    zone.textContent = "Chargement...";
+
+    try {
+      const { data: sessionData, error: sessionError } =
+        await client.auth.getSession();
+
+      if (sessionError) throw sessionError;
+
+      const utilisateur = sessionData.session?.user;
+
+      if (!utilisateur) {
+        zone.textContent = "Connecte-toi pour voir ton profil.";
+        return;
+      }
+let videos = [];
+
+      if (type === "videos") {
+        const { data, error } = await client
+          .from("videos")
+          .select("id, user_id, username, video_url, caption, created_at")
+          .eq("user_id", utilisateur.id)
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+        videos = data || [];
+
+        const compteur =
+          document.getElementById("profil-nombre-videos");
+        if (compteur) compteur.textContent = videos.length;
+
+      } else {
+        const table = type === "favorites" ? "favorites" : "likes";
+
+        const { data: lignes, error } = await client
+          .from(table)
+          .select("video_id")
+          .eq("user_id", utilisateur.id);
+
+        if (error) throw error;
+
+        const ids = (lignes || []).map(ligne => ligne.video_id);
+
+        if (ids.length > 0) {
+          const { data, error: erreurVideos } = await client
+            .from("videos")
+            .select("id, user_id, username, video_url, caption, created_at")
+            .in("id", ids)
+            .order("created_at", { ascending: false });
+
+          if (erreurVideos) throw erreurVideos;
+          videos = data || [];
+        }
+      }
+
+      zone.replaceChildren();
+
+      if (videos.length === 0) {
+        zone.textContent =
+          type === "videos"
+            ? "Tu n'as pas encore publié de vidéo."
+            : type === "favorites"
+              ? "Aucun favori pour le moment."
+              : "Aucun J’aime pour le moment.";
+        return;
+      }
+const grille = document.createElement("div");
+      grille.className = "profile-video-grid";
+
+      videos.forEach(item => {
+        const carte = document.createElement("article");
+        carte.className = "profile-video-item";
+
+        const video = document.createElement("video");
+        video.src = item.video_url;
+        video.controls = false;
+        video.playsInline = true;
+        video.preload = "metadata";
+
+        const legende = document.createElement("p");
+        legende.textContent = item.caption || "";
+
+const vues = document.createElement("p");
+vues.className = "profile-video-views";
+vues.textContent = "👁 " + (item.views || 0) + " vues";
+
+        carte.append(video, legende, vues);
+        grille.appendChild(carte);
+      });
+
+      zone.appendChild(grille);
+
+    } catch (erreur) {
+      console.error("Erreur du profil FasoTok :", erreur);
+      zone.textContent =
+        "Impossible de charger le contenu. Vérifie la connexion Supabase.";
+    }
+  }
+
+  onglets.forEach(onglet => {
+    onglet.addEventListener("click", () => {
+      const type = onglet.dataset.profileTab;
+if (!["videos", "favorites", "likes"].includes(type)) return;
+
+      onglets.forEach(b => b.classList.remove("active"));
+      onglet.classList.add("active");
+
+      chargerProfil(type);
+    });
+  });
+
+  chargerProfil("videos");
+});
+
+
+/* FASOTOK — ENREGISTRER LA LANGUE CHOISIE */
+function choisirLangueFasoTok(code, nom) {
+  try {
+    localStorage.setItem("fasotok-langue", code);
+
+    const message = document.getElementById("langue-selection-message");
+    if (message) {
+      message.textContent = "Langue choisie : " + nom;
+    }
+  } catch (erreur) {
+    alert("Impossible d'enregistrer la langue sur cet appareil.");
+  }
+}

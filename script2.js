@@ -915,3 +915,184 @@ fil.appendChild(carte);
     }
   });
 })
+// --- 5. RECHARGER LES VIDÉOS DEPUIS SUPABASE ---
+document.addEventListener("DOMContentLoaded", async () => {
+  const fil = document.getElementById("video-feed");
+
+  if (!fil || !supabaseClient) return;
+
+  try {
+    const { data: videos, error } = await supabaseClient
+      .from("videos")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    fil.innerHTML = "";
+
+    videos.forEach(item => {
+      const carte = document.createElement("div");
+      carte.className = "video-card";
+
+      const video = document.createElement("video");
+      video.src = item.video_url;
+      video.addEventListener("error", () => {
+  console.error("Erreur vidéo :", video.error, item.video_url);
+});
+
+video.addEventListener("loadeddata", () => {
+  console.log("FasoTok : vidéo chargée.");
+});
+
+video.addEventListener("click", async (event) => {
+  event.stopPropagation();
+
+  if (video.paused) {
+    try {
+      await video.play();
+    } catch (erreur) {
+      console.error("Lecture impossible :", erreur);
+    }
+  } else {
+    video.pause();
+  }
+});
+      video.autoplay = true;
+video.loop = true;
+video.playsInline = true;
+video.preload = "auto";
+video.muted = false;
+video.defaultMuted = false;
+video.removeAttribute("muted");
+
+video.setAttribute("autoplay", "");
+video.setAttribute("playsinline", "");
+video.setAttribute("muted", "");
+
+video.play().catch(() => {
+  console.log("FasoTok : lecture en attente de l'autorisation du téléphone.");
+});
+      const pseudo = document.createElement("h3");
+pseudo.textContent = "@" + (item.username || "Utilisateur");
+
+const description = document.createElement("p");
+description.textContent = item.caption || "";
+
+const compteurVues = document.createElement("div");
+compteurVues.className = "video-views";
+compteurVues.textContent = "👁 " + (item.views || 0) + " vues";
+
+const pied = document.createElement("div");
+pied.className = "video-footer";
+
+pied.appendChild(pseudo);
+pied.appendChild(description);
+pied.appendChild(compteurVues);
+
+pied.appendChild(pseudo);
+pied.appendChild(description);
+pied.appendChild(compteurVues);
+
+carte.appendChild(video);
+carte.appendChild(pied);
+
+ajouterBoutonsVideo(
+  carte,
+  video,
+  item.username || "Utilisateur",
+  item.id
+);
+
+      fil.appendChild(carte);
+  const observateurVideo = new IntersectionObserver((entrees) => {
+  entrees.forEach(entree => {
+    const videoVisible = entree.target.querySelector("video");
+
+    if (!videoVisible) return;
+
+    if (entree.isIntersecting && entree.intersectionRatio >= 0.6) {
+      document.querySelectorAll("#video-feed video").forEach(autreVideo => {
+        if (autreVideo !== videoVisible) {
+          autreVideo.pause();
+        }
+      });
+
+      videoVisible.play().catch(() => {});
+    } else {
+      videoVisible.pause();
+    }
+  });
+}, {
+  threshold: [0, 0.6, 1]
+});
+
+observateurVideo.observe(carte);
+    });
+
+    console.log("FasoTok : vidéos rechargées :", videos.length);
+  } catch (error) {
+    console.error("Erreur de chargement des vidéos :", error);
+  }
+});
+
+/* --- FASOTOK : CHARGEMENT DU PORTEFEUILLE --- */
+document.addEventListener("DOMContentLoaded", async () => {
+  const soldeElement = document.getElementById("portefeuille-solde");
+  const gainsElement = document.getElementById("portefeuille-gains");
+
+  if (!soldeElement || !gainsElement) return;
+
+  if (!window.supabaseClient) {
+    soldeElement.textContent = "Indisponible";
+    gainsElement.textContent = "Indisponible";
+    return;
+  }
+
+  try {
+    const { data: sessionData, error: sessionError } =
+      await window.supabaseClient.auth.getSession();
+
+    if (sessionError) throw sessionError;
+
+    const utilisateur = sessionData.session?.user;
+
+    if (!utilisateur) {
+      soldeElement.textContent = "Connecte-toi";
+      gainsElement.textContent = "Connecte-toi";
+      return;
+    }
+
+    const { data, error } = await window.supabaseClient
+      .from("portefeuilles")
+      .select("solde_fcfa, gains_total_fcfa")
+      .eq("id", utilisateur.id)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    if (!data) {
+      soldeElement.textContent = "Portefeuille non créé";
+      gainsElement.textContent = "Portefeuille non créé";
+      return;
+    }
+
+    soldeElement.textContent =
+      Number(data.solde_fcfa).toLocaleString("fr-FR") + " FCFA";
+
+    gainsElement.textContent =
+      Number(data.gains_total_fcfa).toLocaleString("fr-FR") + " FCFA";
+
+    console.log("FasoTok : portefeuille chargé.");
+  } catch (error) {
+    console.error("Erreur de chargement du portefeuille :", error);
+    soldeElement.textContent = "Erreur de chargement";
+    gainsElement.textContent = "Erreur de chargement";
+  }
+});
+/* --- FASOTOK : CHARGEMENT DE L'HISTORIQUE --- */
+document.addEventListener("DOMContentLoaded", async () => {
+  const liste = document.getElementById("historique-liste");
+  const message = document.getElementById("historique-message");
+
+  if (!liste || !message || !window.supabaseClient) return;

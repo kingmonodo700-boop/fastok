@@ -1096,3 +1096,213 @@ document.addEventListener("DOMContentLoaded", async () => {
   const message = document.getElementById("historique-message");
 
   if (!liste || !message || !window.supabaseClient) return;
+  try {
+    const { data: sessionData, error: sessionError } =
+      await window.supabaseClient.auth.getSession();
+
+    if (sessionError) throw sessionError;
+
+    const utilisateur = sessionData.session?.user;
+
+    if (!utilisateur) {
+      message.textContent = "Connecte-toi pour voir ton historique.";
+      return;
+    }
+
+    const { data, error } = await window.supabaseClient
+      .from("historique_portefeuille")
+      .select("type_operation, montant_fcfa, description, statut, created_at")
+      .eq("utilisateur_id", utilisateur.id)
+      .order("created_at", { ascending: false })
+      .limit(20);
+
+    if (error) throw error;
+
+    liste.replaceChildren();
+
+    if (!data || data.length === 0) {
+      message.textContent = "Aucune opération pour le moment.";
+      return;
+    }
+
+    message.textContent = "Dernières opérations :";
+
+    data.forEach(operation => {
+      const element = document.createElement("li");
+      const date = new Date(operation.created_at).toLocaleDateString("fr-FR");
+
+      element.textContent =
+        `${operation.type_operation} — ` +
+        `${Number(operation.montant_fcfa).toLocaleString("fr-FR")} FCFA — ` +
+        `${operation.statut} — ${date}` +
+        (operation.description ? ` — ${operation.description}` : "");
+
+      liste.appendChild(element);
+    });
+  } catch (error) {
+    console.error("Erreur historique FasoTok :", error);
+    message.textContent = "Impossible de charger l'historique.";
+  }
+});
+/* --- FASOTOK : PROFIL ET CONFIDENTIALITÉ --- */
+document.addEventListener("DOMContentLoaded", () => {
+const afficher = (id) => {
+document.querySelectorAll(".page-section").forEach(page => {
+page.hidden = true;
+});
+const page = document.getElementById(id);
+if (page) page.hidden = false;
+};
+
+const boutonModifier = document.getElementById("modifier-profil-btn");
+const boutonConfidentialite = [...document.querySelectorAll("#parametres-page p")]
+.find(p => p.textContent.includes("Confidentialité et préférences"));
+
+if (boutonModifier) {
+boutonModifier.addEventListener("click", () => {
+const pseudo = localStorage.getItem("fasotok_pseudo") || "";
+const bio = localStorage.getItem("fasotok_bio") || "";
+
+  document.getElementById("nouveau-pseudo").value = pseudo;
+  document.getElementById("nouvelle-bio").value = bio;
+  afficher("modifier-profil-page");
+});
+
+}
+
+if (boutonConfidentialite) {
+boutonConfidentialite.style.cursor = "pointer";
+boutonConfidentialite.addEventListener("click", () => {
+document.getElementById("profil-prive").checked =
+localStorage.getItem("fasotok_profil_prive") === "true";
+afficher("confidentialite-page");
+});
+}
+
+document.getElementById("retour-parametres-profil")
+?.addEventListener("click", () => afficher("parametres-page"));
+
+document.getElementById("retour-parametres-confidentialite")
+?.addEventListener("click", () => afficher("parametres-page"));
+
+document.getElementById("enregistrer-profil")
+?.addEventListener("click", () => {
+const pseudo = document.getElementById("nouveau-pseudo").value.trim();
+const bio = document.getElementById("nouvelle-bio").value.trim();
+
+  if (!pseudo) {
+    alert("Entre un pseudo avant d’enregistrer.");
+    return;
+  }
+
+  localStorage.setItem("fasotok_pseudo", pseudo);
+  localStorage.setItem("fasotok_bio", bio);
+
+  const titre = document.querySelector(".profile-username");
+  const description = document.querySelector(".profile-bio");
+
+  if (titre) titre.textContent = "@" + pseudo;
+  if (description) description.textContent = bio;
+
+  document.getElementById("message-modification-profil").textContent =
+    "Modifications enregistrées sur cet appareil.";
+});
+
+document.getElementById("profil-prive")
+?.addEventListener("change", event => {
+localStorage.setItem("fasotok_profil_prive", event.target.checked);
+});
+});
+/* --- FASOTOK : MÉMORISER LE RÉGLAGE DU SON --- */
+document.addEventListener("DOMContentLoaded", () => {
+  const caseSon = document.getElementById("son-videos-fasotok");
+
+  if (!caseSon) return;
+
+  caseSon.checked = localStorage.getItem("fasotok_son_videos") !== "false";
+
+  caseSon.addEventListener("change", () => {
+    localStorage.setItem("fasotok_son_videos", caseSon.checked);
+
+    document.querySelectorAll("#video-feed video").forEach(video => {
+      video.muted = !caseSon.checked;
+    });
+  });
+});
+
+/* --- FASOTOK : MÉMORISER LES NOTIFICATIONS --- */
+document.addEventListener("DOMContentLoaded", () => {
+  const caseNotifications = document.getElementById("notifications-fasotok");
+
+  if (!caseNotifications) return;
+
+  caseNotifications.checked =
+    localStorage.getItem("fasotok_notifications") === "true";
+
+  caseNotifications.addEventListener("change", () => {
+    localStorage.setItem(
+      "fasotok_notifications",
+      caseNotifications.checked
+    );
+  });
+});
+
+/* FASOTOK : OUVRIR LA PAGE PUBLICITÉ */
+document.addEventListener("DOMContentLoaded", function () {
+  const boutonPublicite = document.querySelector(
+    '.bottom-nav [data-page="publicite"]'
+  );
+
+  const pagePublicite = document.getElementById("publicite-page");
+
+  if (!boutonPublicite || !pagePublicite) {
+    console.error("FasoTok : bouton ou page Publicité introuvable.");
+    return;
+  }
+
+  boutonPublicite.addEventListener("click", function () {
+    document.querySelectorAll(".page-section").forEach(function (page) {
+      page.hidden = true;
+    });
+
+    pagePublicite.hidden = false;
+
+    document.querySelectorAll(".bottom-nav .nav-item").forEach(function (bouton) {
+      bouton.classList.remove("active");
+    });
+
+    boutonPublicite.classList.add("active");
+  });
+});
+/* FASOTOK : FORMULAIRE DE DEMANDE DE PUBLICITÉ */
+document.addEventListener("DOMContentLoaded", function () {
+  const formulaire = document.getElementById("demande-publicite-form");
+
+  if (!formulaire) {
+    console.error("FasoTok : formulaire de publicité introuvable.");
+    return;
+  }
+
+  formulaire.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const nom = document.getElementById("nom-commerce").value.trim();
+    const offre = document.getElementById("type-publicite").value;
+    const contact = document.getElementById("contact-commerce").value.trim();
+
+    if (!nom || !offre || !contact) {
+      alert("Merci de remplir tous les champs.");
+      return;
+    }
+
+    const message =
+      "Bonjour FasoTok 🇧🇫 ! Je souhaite demander une publicité.\n\n" +
+      "Nom du commerce : " + nom + "\n" +
+      "Type de publicité : " + offre + "\n" +
+      "Numéro de contact : " + contact;
+
+    const url = "https://wa.me/?text=" + encodeURIComponent(message);
+
+    window.open(url, "_blank");
+  });
+});

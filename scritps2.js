@@ -1,11 +1,9 @@
-
 /* =========================================================
    FASOTOK 🇧🇫 — SCRIPT PRINCIPAL
    Navigation, assistant, langue, authentification,
    publication et chargement des vidéos
    ========================================================= */
 // --- 1. CONFIGURATION SUPABASE ---
-
 const SUPABASE_URL = "https://vloshskfgaqcdxaktdvy.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_I5sAXEonuAJ2TvRNuvUNPA_o5wIONOm";
 
@@ -34,7 +32,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const pageSections = document.querySelectorAll(".page-section");
   const openSettingsBtn = document.getElementById("open-settings-btn");
   const backHomeBtn = document.getElementById("back-home-btn");
+const ouvrirAssistantBtn =
+document.getElementById("ouvrir-assistant-btn");
 
+if (ouvrirAssistantBtn) {
+ouvrirAssistantBtn.addEventListener("click", () => {
+switchPage("assistant");
+});
+}
   function switchPage(pageId) {
     pageSections.forEach(section => {
       section.hidden = true;
@@ -104,13 +109,189 @@ document.addEventListener("DOMContentLoaded", () => {
       switchPage("home");
     });
   }
+
+// --- ASSISTANT IA : CONNEXION À GEMINI VIA SUPABASE ---
+const assistantForm = document.getElementById("assistant-form");
+const assistantQuestion = document.getElementById("assistant-question");
+const assistantReponses = document.getElementById("assistant-reponses");
+
+if (assistantForm && assistantQuestion && assistantReponses) {
+  assistantForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const question = assistantQuestion.value.trim();
+    if (!question) return;
+
+    const message = document.createElement("p");
+    message.textContent = "Moi : " + question;
+    assistantReponses.appendChild(message);
+
+    const reponse = document.createElement("p");
+    reponse.textContent = "🤖 Gemini réfléchit...";
+    assistantReponses.appendChild(reponse);
+
+    assistantQuestion.value = "";
+
+    try {
+      if (!supabaseClient) {
+        throw new Error("La connexion à Supabase est indisponible.");
+      }
+
+      const { data, error } = await supabaseClient.functions.invoke(
+        "clever-processor",
+        {
+          body: {
+            question: question,
+            language: "français"
+          }
+        }
+      );
+
+      if (error) {
+        let detail = error.message || String(error);
+
+        if (error.context) {
+          try {
+            const contenu = await error.context.clone().json();
+            detail += " — " + JSON.stringify(contenu);
+          } catch (_) {
+            // Conserver le message initial.
+          }
+        }
+
+        throw new Error(detail);
+      }
+
+      const texte =
+        data?.answer ||
+        data?.response ||
+        data?.reply ||
+        data?.message;
+
+      if (!texte || data?.error) {
+        throw new Error(
+          data?.error || "La fonction n'a pas renvoyé de réponse."
+        );
+      }
+
+      reponse.textContent = "🤖 " + texte;
+    } catch (erreur) {
+      console.error("Erreur Assistant FasoTok :", erreur);
+      reponse.textContent = "⚠️ Erreur : " +
+        (erreur?.message || String(erreur));
+    }
+  });
+}
+  
+
+  // Sélection et mémorisation de la langue
+  const langueSelect = document.getElementById("fasotok-langue");
+  const langueMessage = document.getElementById("langue-message");
+
+  if (langueSelect) {
+    const langueEnregistree = localStorage.getItem("fasotok_langue");
+
+    if (
+      langueEnregistree &&
+      Array.from(langueSelect.options).some(
+        option => option.value === langueEnregistree
+      )
+    ) {
+      langueSelect.value = langueEnregistree;
+    }
+
+    function afficherLangueSelectionnee() {
+      const option =
+        langueSelect.options[langueSelect.selectedIndex];
+
+      if (langueMessage && option) {
+        langueMessage.textContent =
+          "Langue sélectionnée : " + option.text;
+      }
+    }
+
+    afficherLangueSelectionnee();
+
+    langueSelect.addEventListener("change", () => {
+      localStorage.setItem("fasotok_langue", langueSelect.value);
+      afficherLangueSelectionnee();
+    });
+  }
+});
+// --- 3. AUTHENTIFICATION ET RESTAURATION DE SESSION ---
+document.addEventListener("DOMContentLoaded", () => {
+  const loginForm = document.getElementById("login-form");
+  const registerForm = document.getElementById("register-form");
+  const authOverlay = document.getElementById("auth-overlay");
+  const deconnexionBtn = document.getElementById("deconnexion-fasotok");
+
+  if (!supabaseClient) {
+    alert("Erreur : Supabase n'est pas initialisé.");
+    return;
+  }
+
+  function afficherUtilisateur(user) {
+    if (!user) return;
+
+    const username = user.user_metadata?.username || "Utilisateur";
+
+    document.querySelectorAll(
+      ".profile-username, .profile-header h2"
+    ).forEach(element => {
+      element.textContent = "@" + username;
+    });
+
+    if (authOverlay) {
+      authOverlay.style.display = "none";
+    }
+  }
+
+  // Restaurer la session existante
+  (async () => {
+    try {
+      const { data, error } = await supabaseClient.auth.getSession();
+
+      if (error) throw error;
+
+      if (data.session?.user) {
+        afficherUtilisateur(data.session.user);
+      }
+    } catch (error) {
+      console.error("Erreur de restauration de session :", error.message);
+    }
+  })();
+
+  // INSCRIPTION
+  if (registerForm) {
+    registerForm.addEventListener("submit", async event => {
+      event.preventDefault();
+
+      const username =
+        document.getElementById("register-username").value.trim();
+
+      const codeSecret =
+        document.getElementById("register-password").value;
+
+      const confirmation =
+        document.getElementById("register-confirm-password").value;
+
+      if (!/^[a-zA-Z0-9._-]{3,30}$/.test(username)) {
+        alert("Choisis un pseudo de 3 à 30 caractères : lettres, chiffres, point, tiret ou soulignement.");
+        return;
+      }
+
+      if (codeSecret !== confirmation) {
+        alert("Les codes secrets ne correspondent pas.");
+        return;
+      }
+
       if (codeSecret.length < 6) {
         alert("Choisis un code secret d'au moins 6 caractères.");
         return;
       }
 
       const fauxEmail = username.toLowerCase() + "@fasotok.bf";
-
+alert("Pseudo reçu : " + username + "\nDébut de la connexion à Supabase...");
       try {
         const { data, error } = await supabaseClient.auth.signUp({
           email: fauxEmail,
@@ -138,6 +319,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+
   // CONNEXION : FasoTok
   if (loginForm) {
     loginForm.addEventListener("submit", async event => {
@@ -196,6 +379,7 @@ console.log("FasoTok : le gestionnaire de connexion fonctionne.");
     });
   }
 
+  
   // DÉCONNEXION réelle
   if (deconnexionBtn) {
     deconnexionBtn.addEventListener("click", async () => {
@@ -213,9 +397,11 @@ console.log("FasoTok : le gestionnaire de connexion fonctionne.");
         console.error("Erreur de déconnexion :", error);
         alert("Échec de déconnexion : " + error.message);
       }
-    });
+        });
   }
 });
+
+
 /* --- FASOTOK : BOUTONS SUR CHAQUE VIDÉO --- */
 async function ajouterBoutonsVideo(carte, video, username, videoId) {
  
@@ -260,7 +446,8 @@ if (!sidebar) {
 }
 
 sidebar.innerHTML = "";
-sidebar.dataset.videoId = String(videoId);
+
+  sidebar.dataset.videoId = String(videoId);
 
 const actions = [
   { icon: "👤", label: "Profil", action: "profil" },
@@ -269,17 +456,19 @@ const actions = [
   { icon: "🔖", label: "Favoris", action: "favoris", count: 0 },
   { icon: "↗", label: "Partager", action: "share" }
 ];
+
+
 const { count: nombreLikes, error: erreurLikes } =
   await supabaseClient
     .from("likes")
     .select("*", { count: "exact", head: true })
     .eq("video_id", String(videoId));
-
 const { count: nombreCommentaires, error: erreurCommentaires } =
   await supabaseClient
     .from("comments")
     .select("*", { count: "exact", head: true })
     .eq("video_id", String(videoId));
+
 console.log("ID vidéo :", videoId);
 console.log("Nombre de J’aime :", nombreLikes, erreurLikes);
 console.log("Nombre de commentaires :", nombreCommentaires, erreurCommentaires);
@@ -293,7 +482,7 @@ if (erreurLikes) console.error("Erreur J’aime :", erreurLikes);
 if (erreurCommentaires) console.error("Erreur commentaires :", erreurCommentaires);
 if (erreurFavoris) console.error("Erreur favoris :", erreurFavoris);
   actions.forEach(item => {
-    const groupe = document.createElement("div");
+const groupe = document.createElement("div");
     groupe.className = "icon-group";
 
     const bouton = document.createElement("button");
@@ -350,7 +539,8 @@ if (item.action === "like") {
       alert("Identifiant de vidéo introuvable.");
       return;
     }
-const { data: likeExistant, error: rechercheErreur } =
+
+    const { data: likeExistant, error: rechercheErreur } =
       await supabaseClient
         .from("likes")
         .select("id")
@@ -396,8 +586,8 @@ if (likeExistant) {
     alert("Impossible d'enregistrer le J’aime. Vérifie la connexion.");
   }
 }
-
 if (item.action === "comment") {
+
   const commentaire = prompt("Écris ton commentaire :");
 
   if (commentaire && commentaire.trim()) {
@@ -418,13 +608,15 @@ if (item.action === "comment") {
         alert("Identifiant de vidéo introuvable.");
         return;
       }
-const { error: erreurCommentaire } = await supabaseClient
+
+      const { error: erreurCommentaire } = await supabaseClient
         .from("comments")
         .insert({
-          user_id: utilisateur.id,
-          video_id: String(videoId),
-          content: commentaire.trim()
-        });
+  user_id: utilisateur.id,
+  username: username,
+  video_id: String(videoId),
+  content: commentaire.trim()
+});
 
       if (erreurCommentaire) throw erreurCommentaire;
 
@@ -488,7 +680,8 @@ document.addEventListener("DOMContentLoaded", () => {
   boutonPublier.addEventListener("click", () => {
     selecteur.click();
   });
-selecteur.addEventListener("change", async () => {
+
+  selecteur.addEventListener("change", async () => {
     const fichier = selecteur.files?.[0];
 
     if (!fichier) return;
@@ -612,8 +805,7 @@ const video = document.createElement("video");
         video.autoplay = true;
      video.addEventListener("click", async () => {
   video.muted = false;
-
-  try {
+try {
     await video.play();
     console.log("FasoTok : lecture avec son activée.");
   } catch (erreur) {
@@ -639,18 +831,14 @@ video.addEventListener("click", async (event) => {
     video.pause();
   }
 });
-
-const pied = document.createElement("div");
-pied.className = "video-footer";
-
+const compteurVues = document.createElement("div");
+compteurVues.className = "video-views";
+compteurVues.textContent = "👁 0 vues";
         const pseudo = document.createElement("h3");
         pseudo.textContent = "@" + username;
 
         const description = document.createElement("p");
         description.textContent = "";
-
-        pied.appendChild(pseudo);
-        pied.appendChild(description);
 
         carte.appendChild(video);
         carte.appendChild(pied);
@@ -682,13 +870,15 @@ fil.appendChild(carte);
       selecteur.value = "";
     }
   });
-});
-// --- 5. RECHARGER LES VIDÉOS DEPUIS SUPABASE ---
+})
+
+  // --- 5. RECHARGER LES VIDÉOS DEPUIS SUPABASE ---
 document.addEventListener("DOMContentLoaded", async () => {
   const fil = document.getElementById("video-feed");
 
   if (!fil || !supabaseClient) return;
-try {
+
+  try {
     const { data: videos, error } = await supabaseClient
       .from("videos")
       .select("*")
@@ -740,22 +930,31 @@ video.setAttribute("muted", "");
 video.play().catch(() => {
   console.log("FasoTok : lecture en attente de l'autorisation du téléphone.");
 });
-      const pied = document.createElement("div");
-      pied.className = "video-footer";
-
       const pseudo = document.createElement("h3");
-      pseudo.textContent = "@" + (item.username || "Utilisateur");
+pseudo.textContent = "@" + (item.username || "Utilisateur");
 
-      const description = document.createElement("p");
-      description.textContent = item.caption || "";
+const description = document.createElement("p");
+description.textContent = item.caption || "";
 
-      
-      pied.appendChild(pseudo);
-      pied.appendChild(description);
-      carte.appendChild(video);
-      carte.appendChild(pied);
+const compteurVues = document.createElement("div");
+compteurVues.className = "video-views";
+compteurVues.textContent = "👁 " + (item.views || 0) + " vues";
 
-      ajouterBoutonsVideo(
+const pied = document.createElement("div");
+pied.className = "video-footer";
+
+pied.appendChild(pseudo);
+pied.appendChild(description);
+pied.appendChild(compteurVues);
+
+pied.appendChild(pseudo);
+pied.appendChild(description);
+pied.appendChild(compteurVues);
+
+carte.appendChild(video);
+carte.appendChild(pied);
+
+ajouterBoutonsVideo(
   carte,
   video,
   item.username || "Utilisateur",
@@ -806,7 +1005,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     gainsElement.textContent = "Indisponible";
     return;
   }
-try {
+
+  try {
     const { data: sessionData, error: sessionError } =
       await window.supabaseClient.auth.getSession();
 
@@ -839,6 +1039,108 @@ try {
 
     gainsElement.textContent =
       Number(data.gains_total_fcfa).toLocaleString("fr-FR") + " FCFA";
+
+    console.log("FasoTok : portefeuille chargé.");
+  } catch (error) {
+    console.error("Erreur de chargement du portefeuille :", error);
+    soldeElement.textContent = "Erreur de chargement";
+    gainsElement.textContent = "Erreur de chargement";
+  }
+});
+
+/* --- FASOTOK : CHARGEMENT DE L'HISTORIQUE --- */
+document.addEventListener("DOMContentLoaded", async () => {
+  const liste = document.getElementById("historique-liste");
+  const message = document.getElementById("historique-message");
+
+  if (!liste || !message || !window.supabaseClient) return;
+
+  try {
+    const { data: sessionData, error: sessionError } =
+      await window.supabaseClient.auth.getSession();
+
+    if (sessionError) throw sessionError;
+
+    const utilisateur = sessionData.session?.user;
+
+    if (!utilisateur) {
+      message.textContent = "Connecte-toi pour voir ton historique.";
+      return;
+    }
+
+    const { data, error } = await window.supabaseClient
+      .from("historique_portefeuille")
+      .select("type_operation, montant_fcfa, description, statut, created_at")
+      .eq("utilisateur_id", utilisateur.id)
+      .order("created_at", { ascending: false })
+      .limit(20);
+
+    if (error) throw error;
+
+    liste.replaceChildren();
+
+    if (!data || data.length === 0) {
+      message.textContent = "Aucune opération pour le moment.";
+      return;
+    }
+
+    message.textContent = "Dernières opérations :";
+
+    data.forEach(operation => {
+      const element = document.createElement("li");
+      const date = new Date(operation.created_at).toLocaleDateString("fr-FR");
+
+      element.textContent =
+        `${operation.type_operation} — ` +
+        `${Number(operation.montant_fcfa).toLocaleString("fr-FR")} FCFA — ` +
+        `${operation.statut} — ${date}` +
+        (operation.description ? ` — ${operation.description}` : "");
+
+      liste.appendChild(element);
+    });
+  } catch (error) {
+    console.error("Erreur historique FasoTok :", error);
+    message.textContent = "Impossible de charger l'historique.";
+  }
+});
+/* --- FASOTOK : PROFIL ET CONFIDENTIALITÉ --- */
+document.addEventListener("DOMContentLoaded", () => {
+const afficher = (id) => {
+document.querySelectorAll(".page-section").forEach(page => {
+page.hidden = true;
+});
+const page = document.getElementById(id);
+if (page) page.hidden = false;
+};
+
+const boutonModifier = document.getElementById("modifier-profil-btn");
+const boutonConfidentialite = [...document.querySelectorAll("#parametres-page p")]
+.find(p => p.textContent.includes("Confidentialité et préférences"));
+
+if (boutonModifier) {
+boutonModifier.addEventListener("click", () => {
+const pseudo = localStorage.getItem("fasotok_pseudo") || "";
+const bio = localStorage.getItem("fasotok_bio") || "";
+
+  document.getElementById("nouveau-pseudo").value = pseudo;
+  document.getElementById("nouvelle-bio").value = bio;
+  afficher("modifier-profil-page");
+});
+
+}
+
+if (boutonConfidentialite) {
+boutonConfidentialite.style.cursor = "pointer";
+boutonConfidentialite.addEventListener("click", () => {
+document.getElementById("profil-prive").checked =
+localStorage.getItem("fasotok_profil_prive") === "true";
+afficher("confidentialite-page");
+});
+}
+
+document.getElementById("retour-parametres-profil")
+?.addEventListener("click", () => afficher("parametres-page"));
+
 document.getElementById("retour-parametres-confidentialite")
 ?.addEventListener("click", () => afficher("parametres-page"));
 
@@ -964,3 +1266,414 @@ document.addEventListener("DOMContentLoaded", function () {
     window.open(url, "_blank");
   });
 });
+
+
+/* FASOTOK 🇧🇫 — COMMENTAIRES STYLE TIKTOK */
+async function afficherCommentaires(videoId) {
+  if (!supabaseClient) {
+    alert("Connexion au serveur impossible.");
+    return;
+  }
+
+  // Éviter d'ouvrir plusieurs fenêtres
+  const ancien = document.getElementById("fasotok-commentaires");
+  if (ancien) ancien.remove();
+
+  // Fenêtre des commentaires
+  const panneau = document.createElement("div");
+  panneau.id = "fasotok-commentaires";
+  panneau.style.cssText = `
+    position:fixed;
+    inset: auto 0 0 0;
+    height:75vh;
+    z-index:99999;
+    background:#181818;
+    color:white;
+    border-radius:18px 18px 0 0;
+    padding:16px;
+    box-sizing:border-box;
+    display:flex;
+    flex-direction:column;
+    font-family:Arial,sans-serif;
+    box-shadow:0 -4px 20px #0008;
+  `;
+
+  const entete = document.createElement("div");
+  entete.style.cssText =
+    "display:flex;justify-content:space-between;" +
+    "align-items:center;border-bottom:1px solid #444;";
+
+  const titre = document.createElement("h3");
+  titre.textContent = "Commentaires";
+  titre.style.margin = "8px 0 14px";
+
+  const fermer = document.createElement("button");
+  fermer.textContent = "✕";
+  fermer.style.cssText =
+    "background:#333;color:white;border:0;" +
+    "border-radius:50%;padding:9px;font-size:16px;";
+  fermer.onclick = () => panneau.remove();
+
+  entete.append(titre, fermer);
+
+  const liste = document.createElement("div");
+liste.style.minHeight = "150px";
+liste.style.display = "block";
+  liste.style.cssText =
+    "flex:1;overflow-y:auto;padding:8px 0;";
+
+  const formulaire = document.createElement("form");
+  formulaire.style.cssText =
+    "display:flex;gap:8px;padding-top:12px;" +
+    "border-top:1px solid #444;";
+
+  const champ = document.createElement("input");
+  champ.type = "text";
+  champ.placeholder = "Ajouter un commentaire...";
+  champ.maxLength = 1000;
+  champ.required = true;
+  champ.style.cssText =
+    "flex:1;min-width:0;padding:12px;" +
+    "border-radius:22px;border:1px solid #555;" +
+    "background:#292929;color:white;font-size:15px;";
+
+  const envoyer = document.createElement("button");
+  envoyer.type = "submit";
+  envoyer.textContent = "Envoyer";
+  envoyer.style.cssText =
+    "background:#fe2c55;color:white;border:0;" +
+    "border-radius:22px;padding:10px 14px;";
+
+  formulaire.append(champ, envoyer);
+  panneau.append(entete, liste, formulaire);
+  document.body.appendChild(panneau);
+
+  // Charger et afficher les commentaires
+  async function chargerCommentaires() {
+    liste.textContent = "Chargement...";
+console.log("Chargement des commentaires pour la vidéo :", videoId);
+    const { data: commentaires, error } = await supabaseClient
+      .from("comments")
+      .select("id, user_id, username, content")
+      .eq("video_id", String(videoId))
+      .order("id", { ascending: false });
+
+    if (error) {
+      console.error("Erreur commentaires :", error);
+      liste.textContent = "Impossible de charger les commentaires.";
+      return;
+    }
+
+    liste.replaceChildren();
+
+    if (!commentaires || commentaires.length === 0) {
+      const vide = document.createElement("p");
+      vide.textContent = "Aucun commentaire. Sois le premier !";
+      vide.style.color = "#bbb";
+      liste.appendChild(vide);
+      return;
+    }
+
+    commentaires.forEach(commentaire => {
+      const ligne = document.createElement("div");
+      ligne.style.cssText =
+        "display:flex;gap:10px;padding:12px 0;" +
+        "border-bottom:1px solid #333;";
+
+      const avatar = document.createElement("div");
+      avatar.textContent = "👤";
+      avatar.style.cssText =
+        "background:#333;border-radius:50%;width:38px;" +
+        "height:38px;display:flex;align-items:center;" +
+        "justify-content:center;flex-shrink:0;";
+
+      const contenu = document.createElement("div");
+      contenu.style.cssText = "flex:1;min-width:0;";
+
+      const auteur = document.createElement("strong");
+      auteur.textContent = commentaire.username || "Utilisateur";
+      auteur.style.cssText = "font-size:14px;color:#ccc;";
+
+      const texte = document.createElement("p");
+      texte.textContent = commentaire.content || "";
+      texte.style.cssText =
+        "margin:6px 0 0;white-space:pre-wrap;overflow-wrap:anywhere;";
+
+      contenu.append(auteur, texte);
+      ligne.append(avatar, contenu);
+      liste.appendChild(ligne);
+    });
+  }
+
+  await chargerCommentaires();
+liste.style.minHeight = "150px";
+  // Envoyer un commentaire dans Supabase
+  formulaire.addEventListener("submit", async evenement => {
+    evenement.preventDefault();
+
+    const texte = champ.value.trim();
+    if (!texte) return;
+
+    envoyer.disabled = true;
+    envoyer.textContent = "Envoi...";
+
+    try {
+      const { data: sessionData, error: sessionError } =
+        await supabaseClient.auth.getSession();
+
+      if (sessionError) throw sessionError;
+
+      const utilisateur = sessionData.session?.user;
+
+      if (!utilisateur) {
+        alert("Connecte-toi pour commenter.");
+        return;
+      }
+
+      const pseudo =
+        utilisateur.user_metadata?.username || "Utilisateur";
+
+      const { error } = await supabaseClient
+        .from("comments")
+        .insert({
+          video_id: String(videoId),
+          user_id: utilisateur.id,
+          username: pseudo,
+          content: texte
+        });
+
+      if (error) throw error;
+
+      champ.value = "";
+      await chargerCommentaires();
+      liste.scrollTop = 0;
+
+    } catch (erreur) {
+      console.error("Erreur envoi commentaire :", erreur);
+      alert("Impossible d'envoyer le commentaire : " + erreur.message);
+    } finally {
+      envoyer.disabled = false;
+      envoyer.textContent = "Envoyer";
+    }
+  });
+}
+
+/* --- FASOTOK : AFFICHER LES NOTIFICATIONS --- */
+document.addEventListener("DOMContentLoaded", async () => {
+  const zone = document.createElement("div");
+  zone.id = "fasotok-notification-message";
+  zone.style.cssText = `
+    position: fixed;
+    top: 15px;
+    left: 10px;
+    right: 10px;
+    z-index: 99999;
+    padding: 12px;
+    border-radius: 10px;
+    background: #222;
+    color: white;
+    display: none;
+    text-align: center;
+  `;
+  document.body.appendChild(zone);
+
+  let derniereNotification = null;
+
+  async function verifierNotifications() {
+    try {
+      const { data: sessionData, error: sessionError } =
+        await supabaseClient.auth.getSession();
+
+      if (sessionError || !sessionData.session) return;
+
+      const utilisateur = sessionData.session.user;
+
+      let requete = supabaseClient
+        .from("notifications")
+        .select("id, message, created_at")
+        .eq("user_id", utilisateur.id)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      if (derniereNotification !== null) {
+        requete = requete.gt("id", derniereNotification);
+      }
+
+      const { data, error } = await requete;
+
+      if (error) {
+       console.error("Erreur notifications :", error.message);
+        return;
+      }
+
+      if (!data || data.length === 0) return;
+
+      if (derniereNotification === null) {
+        derniereNotification = data[0].id;
+        return;
+      }
+
+      const notification = data[0];
+      derniereNotification = notification.id;
+
+      zone.textContent = "🔔 " + notification.message;
+      zone.style.display = "block";
+
+      setTimeout(() => {
+        zone.style.display = "none";
+      }, 5000);
+
+    } catch (erreur) {
+      console.error("Vérification notifications :", erreur);
+    }
+  }
+
+  await verifierNotifications();
+  setInterval(verifierNotifications, 10000);
+});
+
+/* --- FASOTOK : CONTENU DU PROFIL --- */
+document.addEventListener("DOMContentLoaded", () => {
+  const client = window.supabaseClient || supabaseClient;
+  const zone = document.getElementById("profile-content");
+  const onglets = document.querySelectorAll(".profile-tab");
+
+  if (!client || !zone) {
+    console.error("FasoTok : profil ou Supabase introuvable.");
+    return;
+  }
+
+  async function chargerProfil(type = "videos") {
+    zone.replaceChildren();
+    zone.textContent = "Chargement...";
+
+    try {
+      const { data: sessionData, error: sessionError } =
+        await client.auth.getSession();
+
+      if (sessionError) throw sessionError;
+
+      const utilisateur = sessionData.session?.user;
+
+      if (!utilisateur) {
+        zone.textContent = "Connecte-toi pour voir ton profil.";
+        return;
+      }
+
+      let videos = [];
+
+      if (type === "videos") {
+        const { data, error } = await client
+          .from("videos")
+          .select("id, user_id, username, video_url, caption, created_at")
+          .eq("user_id", utilisateur.id)
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+        videos = data || [];
+
+        const compteur =
+          document.getElementById("profil-nombre-videos");
+        if (compteur) compteur.textContent = videos.length;
+
+      } else {
+        const table = type === "favorites" ? "favorites" : "likes";
+
+        const { data: lignes, error } = await client
+          .from(table)
+          .select("video_id")
+          .eq("user_id", utilisateur.id);
+
+        if (error) throw error;
+
+        const ids = (lignes || []).map(ligne => ligne.video_id);
+
+        if (ids.length > 0) {
+          const { data, error: erreurVideos } = await client
+            .from("videos")
+            .select("id, user_id, username, video_url, caption, created_at")
+            .in("id", ids)
+            .order("created_at", { ascending: false });
+
+          if (erreurVideos) throw erreurVideos;
+          videos = data || [];
+        }
+      }
+
+      zone.replaceChildren();
+
+      if (videos.length === 0) {
+        zone.textContent =
+          type === "videos"
+            ? "Tu n'as pas encore publié de vidéo."
+            : type === "favorites"
+              ? "Aucun favori pour le moment."
+              : "Aucun J’aime pour le moment.";
+        return;
+      }
+
+      const grille = document.createElement("div");
+      grille.className = "profile-video-grid";
+
+      videos.forEach(item => {
+        const carte = document.createElement("article");
+        carte.className = "profile-video-item";
+
+        const video = document.createElement("video");
+        video.src = item.video_url;
+        video.controls = false;
+        video.playsInline = true;
+        video.preload = "metadata";
+
+        const legende = document.createElement("p");
+        legende.textContent = item.caption || "";
+
+const vues = document.createElement("p");
+vues.className = "profile-video-views";
+vues.textContent = "👁 " + (item.views || 0) + " vues";
+
+        carte.append(video, legende, vues);
+        grille.appendChild(carte);
+      });
+
+      zone.appendChild(grille);
+
+    } catch (erreur) {
+      console.error("Erreur du profil FasoTok :", erreur);
+      zone.textContent =
+        "Impossible de charger le contenu. Vérifie la connexion Supabase.";
+    }
+  }
+
+  onglets.forEach(onglet => {
+    onglet.addEventListener("click", () => {
+      const type = onglet.dataset.profileTab;
+
+      if (!["videos", "favorites", "likes"].includes(type)) return;
+
+      onglets.forEach(b => b.classList.remove("active"));
+      onglet.classList.add("active");
+
+      chargerProfil(type);
+    });
+  });
+
+  chargerProfil("videos");
+});
+
+    
+/* FASOTOK — ENREGISTRER LA LANGUE CHOISIE */
+function choisirLangueFasoTok(code, nom) {
+  try {
+    localStorage.setItem("fasotok-langue", code);
+
+    const message = document.getElementById("langue-selection-message");
+    if (message) {
+      message.textContent = "Langue choisie : " + nom;
+    }
+  } catch (erreur) {
+    alert("Impossible d'enregistrer la langue sur cet appareil.");
+  }
+}
+
+

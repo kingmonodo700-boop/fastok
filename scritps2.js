@@ -1,9 +1,5 @@
-/* =========================================================
-   FASOTOK 🇧🇫 — SCRIPT PRINCIPAL
-   Navigation, assistant, langue, authentification,
-   publication et chargement des vidéos
-   ========================================================= */
-// --- 1. CONFIGURATION SUPABASE ---
+
+ // --- 1. CONFIGURATION SUPABASE ---
 const SUPABASE_URL = "https://vloshskfgaqcdxaktdvy.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_I5sAXEonuAJ2TvRNuvUNPA_o5wIONOm";
 
@@ -25,7 +21,33 @@ if (!window.supabase) {
 
 const supabaseClient = window.supabaseClient;
 
+if (supabaseClient) {
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    console.log(
+      "FasoTok - événement :",
+      event,
+      "| session présente :",
+      !!session
+    );
+  });
+}
 
+// TEST TEMPORAIRE DU STOCKAGE
+try {
+  console.log(
+    "Stockage local disponible :",
+    typeof localStorage !== "undefined"
+  );
+
+  localStorage.setItem("fasotok_test", "ok");
+
+
+  const cle = Object.keys(localStorage).find(
+    k => k.startsWith("sb-") && k.endsWith("-auth-token")
+  );
+} catch (e) {
+  alert("Erreur de lecture du stockage : " + e.message);
+}
  // --- 2. NAVIGATION, ASSISTANT ET PARAMÈTRES ---
 document.addEventListener("DOMContentLoaded", () => {
   const navButtons = document.querySelectorAll(".nav-item[data-page]");
@@ -109,7 +131,6 @@ switchPage("assistant");
       switchPage("home");
     });
   }
-
 // --- ASSISTANT IA : CONNEXION À GEMINI VIA SUPABASE ---
 const assistantForm = document.getElementById("assistant-form");
 const assistantQuestion = document.getElementById("assistant-question");
@@ -182,9 +203,7 @@ if (assistantForm && assistantQuestion && assistantReponses) {
     }
   });
 }
-  
-
-  // Sélection et mémorisation de la langue
+    // Sélection et mémorisation de la langue
   const langueSelect = document.getElementById("fasotok-langue");
   const langueMessage = document.getElementById("langue-message");
 
@@ -241,26 +260,54 @@ document.addEventListener("DOMContentLoaded", () => {
       element.textContent = "@" + username;
     });
 
-    if (authOverlay) {
-      authOverlay.style.display = "none";
-    }
+if (authOverlay) {
+  authOverlay.hidden = true;
+  authOverlay.style.setProperty("display", "none", "important");
+}
   }
-
-  // Restaurer la session existante
+// Restaurer la session existante
   (async () => {
     try {
+      
       const { data, error } = await supabaseClient.auth.getSession();
 
       if (error) throw error;
 
-      if (data.session?.user) {
-        afficherUtilisateur(data.session.user);
-      }
+      console.log(
+        "FasoTok : session au démarrage =",
+        !!data.session
+      );
+     if (data.session?.user) {
+    afficherUtilisateur(data.session.user);
+
+    if (authOverlay) {
+        authOverlay.style.setProperty(
+            "display",
+            "none",
+            "important"
+        );
+    }
+
+    console.log("FasoTok : utilisateur reconnecté automatiquement ✅");
+} else {
+    console.log("FasoTok : aucune session active.");
+     } 
+      
     } catch (error) {
       console.error("Erreur de restauration de session :", error.message);
     }
   })();
-
+// Restaurer automatiquement l'affichage après reconnexion
+supabaseClient.auth.onAuthStateChange((event, session) => {
+if (session?.user) {
+afficherUtilisateur(session.user);
+console.log("FasoTok : session restaurée.");
+} else if (event === "SIGNED_OUT") {
+if (authOverlay) {
+authOverlay.style.display = "flex";
+}
+}
+});
   // INSCRIPTION
   if (registerForm) {
     registerForm.addEventListener("submit", async event => {
@@ -319,9 +366,7 @@ alert("Pseudo reçu : " + username + "\nDébut de la connexion à Supabase...");
       }
     });
   }
-
-
-  // CONNEXION : FasoTok
+// CONNEXION : FasoTok
   if (loginForm) {
     loginForm.addEventListener("submit", async event => {
     
@@ -340,15 +385,17 @@ alert("Le code de connexion de FasoTok fonctionne !");
 
       const fauxEmail = username.toLowerCase() + "@fasotok.bf";
 
-      try {
-       alert("FasoTok : tentative de connexion lancée");
+      
+try {
+  alert("FasoTok : tentative de connexion lancée");
 
-   const { data, error } =
-          await supabaseClient.auth.signInWithPassword({
-            email: fauxEmail,
-            password: codeSecret
-          });
+  const { data, error } =
+    await supabaseClient.auth.signInWithPassword({
+      email: fauxEmail,
+      password: codeSecret
+    });
 
+  
         if (error) throw error;
 
         if (!data.session || !data.user) {
@@ -357,7 +404,14 @@ alert("Le code de connexion de FasoTok fonctionne !");
           );
         }
 
-        // Fermer l'écran de connexion
+const verificationSession =
+  await supabaseClient.auth.getSession();
+
+alert(
+  "Session enregistrée : " +
+  (verificationSession.data.session ? "OUI" : "NON")
+);
+// Fermer l'écran de connexion
         if (authOverlay) {
           authOverlay.style.setProperty(
             "display",
@@ -402,8 +456,6 @@ console.log("FasoTok : le gestionnaire de connexion fonctionne.");
         });
   }
 });
-
-
 /* --- FASOTOK : BOUTONS SUR CHAQUE VIDÉO --- */
 async function ajouterBoutonsVideo(carte, video, username, videoId) {
  
@@ -450,7 +502,6 @@ if (!sidebar) {
 sidebar.innerHTML = "";
 
   sidebar.dataset.videoId = String(videoId);
-
 const actions = [
   { icon: "👤", label: "Profil", action: "profil" },
   { icon: "❤️", label: "J’aime", action: "like", count: 0 },
@@ -479,12 +530,11 @@ const { count: nombreFavoris, error: erreurFavoris } =
     .from("favorites")
     .select("*", { count: "exact", head: true })
     .eq("video_id", String(videoId));
-
 if (erreurLikes) console.error("Erreur J’aime :", erreurLikes);
 if (erreurCommentaires) console.error("Erreur commentaires :", erreurCommentaires);
 if (erreurFavoris) console.error("Erreur favoris :", erreurFavoris);
   actions.forEach(item => {
-const groupe = document.createElement("div");
+    const groupe = document.createElement("div");
     groupe.className = "icon-group";
 
     const bouton = document.createElement("button");
@@ -541,8 +591,7 @@ if (item.action === "like") {
       alert("Identifiant de vidéo introuvable.");
       return;
     }
-
-    const { data: likeExistant, error: rechercheErreur } =
+const { data: likeExistant, error: rechercheErreur } =
       await supabaseClient
         .from("likes")
         .select("id")
@@ -577,8 +626,7 @@ if (likeExistant) {
     });
 
   if (error) throw error;
-
-  bouton.textContent = "❤️";
+bouton.textContent = "❤️";
   compteur.textContent =
     Number(compteur.textContent || 0) + 1;
 }
@@ -632,9 +680,7 @@ if (item.action === "comment") {
     }
   }
 }
-
-
-      if (item.action === "share") {
+if (item.action === "share") {
         try {
           if (navigator.share) {
             await navigator.share({
@@ -724,8 +770,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       console.log("Publication par l'utilisateur :", utilisateur.id);
-
-      // Nom de fichier unique dans le dossier de l'utilisateur
+     // Nom de fichier unique dans le dossier de l'utilisateur
       const extension = fichier.name.includes(".")
         ? fichier.name.split(".").pop().toLowerCase()
         : "mp4";
@@ -762,8 +807,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const username =
         utilisateur.user_metadata?.username || "Utilisateur";
-
-      // ENREGISTRER LES INFORMATIONS DANS LA TABLE videos
+// ENREGISTRER LES INFORMATIONS DANS LA TABLE videos
       
 const { data: videoInseree, error: insertionError } = await supabaseClient
   .from("videos")
@@ -794,9 +838,7 @@ const { data: videoInseree, error: insertionError } = await supabaseClient
           "ÉCHEC TABLE VIDEOS : " + insertionError.message
         );
       }
-
-      
-      // AFFICHER LA VIDÉO PUBLIÉE DANS LE FIL FASOTOK
+// AFFICHER LA VIDÉO PUBLIÉE DANS LE FIL FASOTOK
       const fil = document.getElementById("video-feed");
 
       if (fil) {
@@ -807,7 +849,8 @@ const video = document.createElement("video");
         video.autoplay = true;
      video.addEventListener("click", async () => {
   video.muted = false;
-try {
+
+  try {
     await video.play();
     console.log("FasoTok : lecture avec son activée.");
   } catch (erreur) {
@@ -873,8 +916,7 @@ fil.appendChild(carte);
     }
   });
 })
-
-  // --- 5. RECHARGER LES VIDÉOS DEPUIS SUPABASE ---
+// --- 5. RECHARGER LES VIDÉOS DEPUIS SUPABASE ---
 document.addEventListener("DOMContentLoaded", async () => {
   const fil = document.getElementById("video-feed");
 
@@ -1049,7 +1091,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     gainsElement.textContent = "Erreur de chargement";
   }
 });
-
 /* --- FASOTOK : CHARGEMENT DE L'HISTORIQUE --- */
 document.addEventListener("DOMContentLoaded", async () => {
   const liste = document.getElementById("historique-liste");
@@ -1235,7 +1276,6 @@ document.addEventListener("DOMContentLoaded", function () {
     boutonPublicite.classList.add("active");
   });
 });
-
 /* FASOTOK : FORMULAIRE DE DEMANDE DE PUBLICITÉ */
 document.addEventListener("DOMContentLoaded", function () {
   const formulaire = document.getElementById("demande-publicite-form");
@@ -1268,8 +1308,6 @@ document.addEventListener("DOMContentLoaded", function () {
     window.open(url, "_blank");
   });
 });
-
-
 /* FASOTOK 🇧🇫 — COMMENTAIRES STYLE TIKTOK */
 async function afficherCommentaires(videoId) {
   if (!supabaseClient) {
@@ -1504,11 +1542,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       const { data, error } = await requete;
 
       if (error) {
-       console.error("Erreur notifications :", error.message);
+        console.error("Erreur notifications :", error.message);
         return;
       }
-
-      if (!data || data.length === 0) return;
+if (!data || data.length === 0) return;
 
       if (derniereNotification === null) {
         derniereNotification = data[0].id;
@@ -1561,8 +1598,7 @@ document.addEventListener("DOMContentLoaded", () => {
         zone.textContent = "Connecte-toi pour voir ton profil.";
         return;
       }
-
-      let videos = [];
+let videos = [];
 
       if (type === "videos") {
         const { data, error } = await client
@@ -1613,8 +1649,7 @@ document.addEventListener("DOMContentLoaded", () => {
               : "Aucun J’aime pour le moment.";
         return;
       }
-
-      const grille = document.createElement("div");
+const grille = document.createElement("div");
       grille.className = "profile-video-grid";
 
       videos.forEach(item => {
@@ -1650,8 +1685,7 @@ vues.textContent = "👁 " + (item.views || 0) + " vues";
   onglets.forEach(onglet => {
     onglet.addEventListener("click", () => {
       const type = onglet.dataset.profileTab;
-
-      if (!["videos", "favorites", "likes"].includes(type)) return;
+if (!["videos", "favorites", "likes"].includes(type)) return;
 
       onglets.forEach(b => b.classList.remove("active"));
       onglet.classList.add("active");
@@ -1677,5 +1711,4 @@ function choisirLangueFasoTok(code, nom) {
     alert("Impossible d'enregistrer la langue sur cet appareil.");
   }
 }
-
 

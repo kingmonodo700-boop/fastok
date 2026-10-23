@@ -341,7 +341,9 @@ alert("Le code de connexion de FasoTok fonctionne !");
       const fauxEmail = username.toLowerCase() + "@fasotok.bf";
 
       try {
-        const { data, error } =
+       alert("FasoTok : tentative de connexion lancée");
+
+   const { data, error } =
           await supabaseClient.auth.signInWithPassword({
             email: fauxEmail,
             password: codeSecret

@@ -777,3 +777,141 @@ document.addEventListener("DOMContentLoaded", () => {
 
       cheminFichier =
         utilisateur.id + "/" + Date.now() + "." + extension;
+      // ENVOI DU FICHIER DANS STORAGE
+      const { data: uploadData, error: uploadError } =
+        await supabaseClient.storage
+          .from("videos")
+          .upload(cheminFichier, fichier, {
+            contentType: fichier.type || "video/mp4",
+            upsert: false
+          });
+
+      if (uploadError) {
+        console.error("Erreur Storage :", uploadError);
+        throw new Error("ÉCHEC STORAGE : " + uploadError.message);
+      }
+
+      fichierEnvoye = true;
+
+      // Récupérer l'URL publique du fichier
+      const { data: urlData } = supabaseClient.storage
+        .from("videos")
+        .getPublicUrl(uploadData.path);
+
+      const urlVideo = urlData.publicUrl;
+
+      if (!urlVideo) {
+        throw new Error("Impossible de récupérer l'adresse de la vidéo.");
+      }
+
+      const username =
+        utilisateur.user_metadata?.username || "Utilisateur";
+// ENREGISTRER LES INFORMATIONS DANS LA TABLE videos
+
+const { data: videoInseree, error: insertionError } = await supabaseClient
+  .from("videos")
+  .insert({
+    user_id: utilisateur.id,
+    username: username,
+    video_url: urlVideo,
+    caption: ""
+  })
+  .select("id")
+  .single();
+
+      if (insertionError) {
+        console.error("Erreur table videos :", insertionError);
+
+        // Nettoyage du fichier si l'insertion échoue
+        const { error: nettoyageError } = await supabaseClient.storage
+          .from("videos")
+          .remove([cheminFichier]);
+
+        if (nettoyageError) {
+          console.error("Erreur de nettoyage Storage :", nettoyageError);
+        }
+
+        fichierEnvoye = false;
+
+        throw new Error(
+          "ÉCHEC TABLE VIDEOS : " + insertionError.message
+        );
+      }
+// AFFICHER LA VIDÉO PUBLIÉE DANS LE FIL FASOTOK
+      const fil = document.getElementById("video-feed");
+
+      if (fil) {
+        const carte = document.createElement("div");
+        carte.className = "video-card";
+const video = document.createElement("video");
+        video.src = urlVideo;
+        video.autoplay = true;
+     video.addEventListener("click", async () => {
+  video.muted = false;
+
+  try {
+    await video.play();
+    console.log("FasoTok : lecture avec son activée.");
+  } catch (erreur) {
+    console.error("Erreur de lecture vidéo :", erreur);
+  }
+});
+        video.loop = true;
+video.playsInline = true;
+video.preload = "metadata";
+
+video.addEventListener("click", async (event) => {
+  event.stopPropagation();
+
+  if (video.paused) {
+    video.muted = false;
+
+    try {
+      await video.play();
+    } catch (erreur) {
+      console.error("Erreur de lecture :", erreur);
+    }
+  } else {
+    video.pause();
+  }
+});
+const compteurVues = document.createElement("div");
+compteurVues.className = "video-views";
+compteurVues.textContent = "👁 0 vues";
+        const pseudo = document.createElement("h3");
+        pseudo.textContent = "@" + username;
+
+        const description = document.createElement("p");
+        description.textContent = "";
+
+        carte.appendChild(video);
+        carte.appendChild(pied);
+ajouterBoutonsVideo(
+  carte,
+  video,
+  username || "Utilisateur",
+  videoInseree.id
+);
+fil.appendChild(carte);
+        video.play().catch(() => {
+          console.log("La lecture démarrera après une action.");
+        });
+      }
+
+
+      alert("Vidéo publiée avec succès sur FasoTok ! 🇧🇫");
+
+    } catch (error) {
+      console.error("Erreur de publication FasoTok :", error);
+
+      alert(
+        "Échec de publication : " +
+        (error.message || "Erreur inconnue")
+      );
+    } finally {
+      boutonPublier.disabled = false;
+      boutonPublier.textContent = "Publier";
+      selecteur.value = "";
+    }
+  });
+})

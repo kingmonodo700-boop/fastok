@@ -715,5 +715,3 @@ if (["like", "comment", "favoris"].includes(item.action)) {
   }
 
      }
-// --- 4. PUBLICATION DE VIDÉOS ---
-document.addEventListener("DOMContentLoaded", () => {

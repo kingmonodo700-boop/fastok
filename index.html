@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#090910">
+  <meta name="description" content="FasoTok — découvre, crée et partage des vidéos. La créativité du Burkina Faso et du monde.">
+  <title>FasoTok  — La scène est à toi</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./style.css">
+<style>
+  body {
+    background: #090910 !important;
+    color: white !important;
+  }
+</style>
+<style>
+  .fasotok-app {
+    background: #090910 !important;
+    color: white !important;
+  }
+</style>
+</head>
+<body data-page="home">
+  <div class="fasotoc-app">
+    <header class="top-nav" id="top-nav">
+      <a class="brand" href="#home" aria-label="FasoTok accueil">FASO<span>TOK</span><small>🇧🇫</small></a>
+      <div class="feed-tabs" role="tablist" aria-label="Flux vidéos">
+        <button type="button" data-feed-tab="following">Suivis</button>
+        <button type="button" class="active" data-feed-tab="for-you">Pour toi</button>
+        <button type="button" data-feed-tab="live">LIVE</button>
+      </div>
+      <button class="top-icon" id="top-search-btn" type="button" aria-label="Rechercher">⌕</button>
+    </header>
+
+    <main class="app-content">
+      
+<section id="home-page" class="page-section">
+  <div class="video-feed" id="video-feed">
+
+    <div class="feed-top">
+      <span class="feed-logo">🇧🇫 FasoTok</span>
+      <div class="feed-tabs">
+        <button type="button" class="feed-tab">Suivis</button>
+        <button type="button" class="feed-tab active">Pour toi</button>
+      </div>
+      <button type="button" class="feed-search" id="top-search-btn">⌕</button>
+    </div>
+
+    <div class="placeholder-view" id="empty-feed-msg">
+      <div class="empty-orb">🇧🇫</div>
+      <h2>Bienvenue sur FasoTok</h2>
+      <p>Le talent du Burkina Faso et du monde commence ici.</p>
+      <button class="primary-action" type="button" id="empty-create-btn">
+        Créer ma première publication
+      </button>
+    </div>
+
+  </div>
+
+  <div id="live-placeholder" class="live-placeholder" hidden>
+    <div class="live-symbol">● LIVE</div>
+    <h2>Les directs arrivent bientôt</h2>
+    <p>La diffusion en direct sera activée après la mise en place du serveur, des outils de modération et des protections de compte.</p>
+  </div>
+</section>
+
+      <section id="discover-page" class="page-section" hidden>
+        <div class="page-padding">
+          <div class="page-heading"><span class="eyebrow">EXPLORE LE MONDE</span><h1>Découvrir</h1><p>Recherche les créateurs et les publications disponibles sur cet appareil.</p></div>
+          <label class="search-field"><span>⌕</span><input id="discover-search" type="search" placeholder="Rechercher une vidéo ou un créateur…" autocomplete="off"></label>
+          <div class="topic-grid">
+            <button type="button" class="topic-chip" data-search-tag="#FasoTok">🇧🇫 #FasoTok</button>
+            <button type="button" class="topic-chip" data-search-tag="#OuagaVibes">#OuagaVibes</button>
+            <button type="button" class="topic-chip" data-search-tag="#Humour226">😂 Humour 226</button>
+            <button type="button" class="topic-chip" data-search-tag="#Musique">🎵 Musique</button>
+            <button type="button" class="topic-chip" data-search-tag="#Danse">💃 Danse</button>
+            <button type="button" class="topic-chip" data-search-tag="#Afrique">🌍 Afrique</button>
+          </div>
+          <h2 class="subheading">Résultats</h2>
+          <div id="discover-results" class="discover-results">Recherche dans les contenus présents sur cet appareil.</div>
+          <button type="button" class="text-action" id="open-assistant-from-discover">🤖 Ouvrir l'assistant FasoTok</button>
+        </div>
+      </section>
+
+      <section id="friends-page" class="page-section" hidden>
+        <div class="page-padding">
+          <div class="page-heading"><span class="eyebrow">COMMUNAUTÉ</span><h1>Amis & créateurs</h1><p>Retrouve les personnes que tu connais et découvre de nouveaux talents.</p></div>
+          <div class="feature-panel"><div class="feature-icon">👥</div><div><h3>Ta communauté</h3><p>Les abonnements et suggestions connectés seront synchronisés lorsque les comptes en ligne seront activés.</p></div></div>
+          <button type="button" class="secondary-action" id="find-creators-btn">Trouver des créateurs</button>
+          <div id="friends-list" class="stack-list"><p class="muted">Aucun ami connecté pour le moment.</p></div>
+        </div>
+      </section>
+
+      <section id="inbox-page" class="page-section" hidden>
+        <div class="page-padding">
+          <div class="page-heading"><span class="eyebrow">TES ÉCHANGES</span><h1>Boîte de réception</h1></div>
+          <div class="inbox-tabs"><button class="active" type="button" data-inbox-tab="activity">Activité</button><button type="button" data-inbox-tab="messages">Messages</button></div>
+          <div id="inbox-activity-panel" class="feature-panel"><div class="feature-icon">🔔</div><div><h3>Ton activité</h3><p>Les notifications réelles apparaîtront ici lorsque les comptes et les interactions en ligne seront activés.</p></div></div>
+          <div id="inbox-messages-panel" class="feature-panel" hidden><div class="feature-icon">💬</div><div><h3>Messages privés</h3><p>La messagerie entre utilisateurs nécessite un service de comptes et de stockage sécurisé. Elle n'est pas encore connectée.</p></div></div>
+        </div>
+      </section>
+
+      <section id="assistant-page" class="page-section" hidden>
+        <div class="page-padding">
+          <div class="page-heading"><span class="eyebrow">AIDE & IDÉES</span><h1>Assistant FasoTok</h1><p>Un espace de questions et d'idées. Le moteur IA connecté sera ajouté plus tard.</p></div>
+          <div id="assistant-reponses" class="ia-box" aria-live="polite"><p>Bonjour ! Je suis l'assistant local de FasoTok 🇧🇫.</p></div>
+          <form id="assistant-form" class="assistant-form"><textarea id="assistant-question" placeholder="Écris ta question ici…" required rows="3"></textarea><button type="submit" id="assistant-envoyer" class="primary-action">Envoyer</button></form>
+        </div>
+      </section>
+
+      <section id="studio-page" class="page-section" hidden>
+        <div class="page-padding">
+          <div class="page-heading"><span class="eyebrow">ESPACE CRÉATEUR</span><h1>Studio créateur</h1><p>Des outils pour préparer, améliorer et organiser tes contenus. Les outils locaux fonctionnent sur cet appareil.</p></div>
+          <div class="studio-group"><h2>🎬 Création & tournage</h2><div id="studio-create-tools" class="tool-grid"></div></div>
+          <div class="studio-group"><h2>📝 Idées & publication</h2><div id="studio-planning-tools" class="tool-grid"></div></div>
+          <div class="studio-group"><h2>📁 Mes brouillons</h2><div id="drafts-list" class="drafts-list"><p class="muted">Aucun brouillon enregistré pour le moment.</p></div></div>
+          <div class="studio-group"><h2>📊 Suivi & progression</h2><div id="studio-growth-tools" class="tool-grid"></div></div>
+        </div>
+      </section>
+
+      <section id="profile-page" class="page-section" hidden>
+        <div class="page-padding">
+          <div class="profile-header"><h2 id="profil-titre">@MonProfil</h2><span class="profile-subtitle">Ton espace FasoTok</span></div>
+          <div class="profile-info-container">
+            <div class="profile-avatar">👤</div>
+            <p class="profile-username">@MonProfil</p>
+            <p class="profile-bio">Créateur de contenus sur FasoTok 🇧🇫</p>
+            <div class="profile-stats"><div class="stat-item"><strong id="total-likes-count">0</strong><span>J'aime</span></div><div class="stat-item"><strong id="profile-followers-count">0</strong><span>Abonnés</span></div><div class="stat-item"><strong id="profile-following-count">0</strong><span>Abonnements</span></div></div>
+            <button type="button" id="modifier-profil-btn" class="secondary-action">Modifier mon profil</button>
+          </div>
+          <div class="profile-shortcuts"><button type="button" data-open-page="studio">🎬 Studio créateur</button><button type="button" data-open-page="friends">👥 Amis</button><button type="button" data-open-page="assistant">🤖 Assistant</button></div>
+          <div class="profile-settings">
+            <h2>Paramètres</h2>
+            <div class="setting-row"><label for="fasotok-langue">🌍 Langue de l'application</label><select id="fasotok-langue" class="custom-select"><option value="fr">Français</option><option value="en">English</option><option value="mos">Mooré</option><option value="dyu">Dioula</option></select><p id="langue-message" class="lang-msg">Langue sélectionnée : Français</p></div>
+            <div class="setting-row"><h3>🔐 Compte & sécurité</h3><p class="muted">Ton compte actuel est enregistré uniquement sur cet appareil. La connexion sécurisée en ligne viendra après le développement de l'interface.</p></div>
+            <div class="setting-row"><h3>🧰 Outils & préférences</h3><div id="profile-tools" class="tool-list"></div></div>
+            <div class="setting-row"><h3>☁️ Services en ligne — à connecter plus tard</h3><p class="muted">Les fonctions cloud, synchronisation mondiale et stockage en ligne restent désactivés tant que Supabase n'est pas connecté.</p><div id="backend-tools" class="tool-list"></div></div>
+            <button id="deconnexion-fasotok" type="button" class="logout-btn">Se déconnecter</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <input type="file" id="fasotok-selecteur" accept="video/*,image/*" hidden>
+    <div id="create-menu" class="create-menu" hidden>
+      <div class="create-sheet"><div class="sheet-handle"></div><div class="sheet-heading"><div><span class="eyebrow">NOUVELLE CRÉATION</span><h2>Publier sur FasoTok</h2></div><button type="button" id="close-create-menu" aria-label="Fermer">✕</button></div>
+        <label class="caption-label" for="create-caption">Légende de ta publication</label><textarea id="create-caption" rows="2" maxlength="220" placeholder="Raconte ton moment…"></textarea>
+        <div class="create-options"><button type="button" id="create-video-btn"><span>🎬</span><strong>Vidéo</strong><small>Choisir une vidéo</small></button><button type="button" id="create-photo-btn"><span>🖼️</span><strong>Photo</strong><small>Choisir une image</small></button><button type="button" id="create-draft-btn"><span>📁</span><strong>Brouillon</strong><small>Garder sur l'appareil</small></button><button type="button" id="create-live-btn"><span>🔴</span><strong>LIVE</strong><small>Bientôt disponible</small></button></div>
+        <p class="local-note">Pour le moment, les publications sont conservées localement sur cet appareil. Elles ne sont pas visibles par les autres utilisateurs.</p>
+      </div>
+    </div>
+
+    <nav class="bottom-nav" aria-label="Navigation principale">
+      <button class="nav-item active-nav" data-page="home" type="button"><span>⌂</span><small>Accueil</small></button>
+      <button class="nav-item" data-page="discover" type="button"><span>⌕</span><small>Découvrir</small></button>
+      <button class="nav-item create-nav" id="publish-btn" type="button" aria-label="Créer une publication"><span>＋</span></button>
+      <button class="nav-item" data-page="inbox" type="button"><span>▤</span><small>Boîte</small></button>
+      <button class="nav-item" data-page="profile" type="button"><span>◉</span><small>Profil</small></button>
+    </nav>
+  </div>
+
+  <div id="auth-overlay" class="auth-overlay" hidden>
+    <div class="auth-container">
+      <div class="auth-mark">🇧🇫</div><h2 class="auth-title">Bienvenue sur FasoTok</h2><p class="auth-intro">La scène est à toi.</p>
+      <form id="login-form" class="auth-form"><div class="input-group-auth"><label for="login-username">Ton pseudo</label><input type="text" id="login-username" placeholder="Exemple : Faso123" autocomplete="username" required></div><div class="input-group-auth"><label for="login-password">Ton code secret</label><input type="password" id="login-password" placeholder="Ton code secret" autocomplete="current-password" required></div><button type="submit" class="auth-submit-btn">Se connecter</button><p class="auth-switch-text">Nouveau sur FasoTok ? <button type="button" id="switch-to-register">Créer un compte</button></p></form>
+      <form id="register-form" class="auth-form" hidden><div class="input-group-auth"><label for="register-username">Choisis ton pseudo</label><input type="text" id="register-username" placeholder="Exemple : Faso123" autocomplete="username" required></div><div class="input-group-auth"><label for="register-password">Choisis ton code secret</label><input type="password" id="register-password" placeholder="8 caractères minimum" autocomplete="new-password" required></div><div class="input-group-auth"><label for="register-confirm-password">Confirme ton code secret</label><input type="password" id="register-confirm-password" placeholder="Répète ton code secret" autocomplete="new-password" required></div><button type="submit" class="auth-submit-btn">Créer mon compte</button><p class="auth-switch-text">Déjà un compte ? <button type="button" id="switch-to-login">Se connecter</button></p></form>
+      <p class="auth-local-note">Mode prototype : compte enregistré sur cet appareil, sans serveur.</p>
+    </div>
+  </>
+  <div id="fasotok-toast" class="fasotok-toast" role="status" aria-live="polite"></div>
+<script>
+(async function () {
+  if ('serviceWorker' in navigator) {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+
+    for (const registration of registrations) {
+      await registration.unregister();
+    }
+  }
+
+  if ('caches' in window) {
+    const cacheNames = await caches.keys();
+
+    for (const cacheName of cacheNames) {
+      await caches.delete(cacheName);
+    }
+  }
+
+  console.log('Nettoyage FasoTok terminé');
+})();
+</script>
+  <script src="./traductions.js"></script>
+  <script src="./script2.js"></script>
+  <script src="./app-enhancements.js"></script>
+  <script>
+    // Service Worker temporairement désactivé pour le diagnostic
+  </script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // 1. Cacher l'écran de connexion s'il bloque l'écran
+    const auth = document.getElementById('auth-overlay');
+    if (auth && localStorage.getItem('fasotok_user')) {
+      auth.hidden = true;
+    }
+
+    // 2. Activer la navigation du bas (Accueil, Découvrir, Boîte, Profil)
+    document.querySelectorAll('.bottom-nav .nav-item[data-page]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const page = btn.getAttribute('data-page');
+        document.querySelectorAll('.page-section').forEach(sec => {
+          sec.hidden = (sec.id !== page + '-page');
+        });
+        document.querySelectorAll('.bottom-nav .nav-item').forEach(b => {
+          b.classList.toggle('active-nav', b === btn);
+        });
+      });
+    });
+
+    // 3. Activer le bouton "+" et "Créer ma première publication"
+    const ouvrirCreation = () => {
+      const menu = document.getElementById('create-menu');
+      if (menu) menu.hidden = false;
+    };
+    document.getElementById('publish-btn')?.addEventListener('click', ouvrirCreation);
+    document.getElementById('empty-create-btn')?.addEventListener('click', ouvrirCreation);
+    document.getElementById('close-create-menu')?.addEventListener('click', () => {
+      const menu = document.getElementById('create-menu');
+      if (menu) menu.hidden = true;
+    });
+  });
+</script>
+<script>
+  window.addEventListener('load', () => {
+    // 1. Forcer la fermeture de tous les écrans bloquants
+    const auth = document.getElementById('auth-overlay');
+    if (auth && localStorage.getItem('fasotok_user')) {
+      auth.hidden = true;
+    }
+
+    // 2. Activer tous les boutons de la barre du bas (Accueil, Découvrir, Boîte, Profil)
+    document.querySelectorAll('.bottom-nav .nav-item[data-page]').forEach((btn) => {
+      btn.onclick = (e) => {
+        e.preventDefault();
+        const page = btn.getAttribute('data-page');
+        document.querySelectorAll('.page-section').forEach((sec) => {
+          sec.hidden = (sec.id !== page + '-page');
+        });
+        document.querySelectorAll('.bottom-nav .nav-item').forEach((b) => {
+          b.classList.toggle('active-nav', b === btn);
+        });
+      };
+    });
+
+    // 3. Activer le bouton "+" et "Créer ma première publication"
+    const ouvrirMenu = () => {
+      const menu = document.getElementById('create-menu');
+      if (menu) menu.hidden = false;
+    };
+    const btnPlus = document.getElementById('publish-btn');
+    const btnEmpty = document.getElementById('empty-create-btn');
+    const btnClose = document.getElementById('close-create-menu');
+
+    if (btnPlus) btnPlus.onclick = ouvrirMenu;
+    if (btnEmpty) btnEmpty.onclick = ouvrirMenu;
+    if (btnClose) btnClose.onclick = () => {
+      const menu = document.getElementById('create-menu');
+      if (menu) menu.hidden = true;
+    };
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,43 @@
+FASOTOK — VERSION RÉORGANISÉE (PHASE LOCALE)
+
+ORGANISATION
+- Accueil : fil vidéo vertical et onglets Suivis / Pour toi / LIVE.
+- Découvrir : recherche locale et raccourcis de thèmes.
+- Créer (+) : sélection de vidéo, photo, brouillon et information LIVE.
+- Amis : espace communautaire et accès à la découverte.
+- Boîte : onglets Activité et Messages.
+- Assistant : interface locale, sans moteur IA connecté.
+- Studio créateur : outils de tournage, idées, préparation et progression.
+- Profil : bio, statistiques locales, langue, préférences et paramètres.
+- Services en ligne : outils Supabase séparés et désactivés.
+
+FONCTIONS LOCALES
+- Compte de démonstration local avec empreinte SHA-256 du code secret.
+- Publication photo/vidéo dans le fil local.
+- Stockage des médias et des brouillons dans IndexedDB lorsque disponible.
+- Liste des brouillons avec actions Publier et Supprimer.
+- Likes et favoris enregistrés localement.
+- Commentaires locaux dans le tiroir de commentaires.
+- Recherche dans les publications présentes sur l'appareil.
+- Outils créateur déplacés hors de la page Profil vers Studio.
+- Nettoyage des anciennes barres flottantes et des badges de jalons trompeurs.
+- Correction d'une erreur dans le moteur de traduction.
+- Correction du cache du service worker.
+
+SUPABASE
+- Aucune connexion Supabase n'est activée.
+- L'initialisation automatique de Supabase a été neutralisée.
+- Les commandes de configuration et les outils cloud sont désactivés pour cette phase.
+
+LIMITES
+- Les publications locales ne sont pas visibles par d'autres utilisateurs.
+- Les messages réels, abonnements en ligne, notifications réelles, flux mondial, LIVE public et synchronisation nécessitent un serveur et des règles de sécurité.
+- L'assistant n'est pas encore un moteur IA.
+- Le fil Suivis et les espaces Amis/Boîte sont des structures d'interface en attendant les comptes connectés.
+
+VÉRIFICATIONS
+- node --check réussi pour script2.js, traductions.js, app-enhancements.js et sw.js.
+- manifest.json valide.
+- Aucun identifiant HTML dupliqué.
+- Toutes les références locales de index.html existent.
+- Le test interactif complet dans un navigateur réel reste à effectuer sur téléphone après déploiement.
